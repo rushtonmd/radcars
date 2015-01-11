@@ -16,7 +16,7 @@ CarPages = new Meteor.Pagination(Cars, {
 	//},
 	itemTemplate: 'car',
 	infinite: true,
-	perPage: 100,
+	perPage: 5,
 	sort: {
 		timestamp: -1
 	}
@@ -92,7 +92,8 @@ var apiData = {
 if (Meteor.isClient) {
 
 	Handlebars.registerHelper("prettifyDate", function(timestamp) {
-    return new Date(timestamp).toString('yyyy-MM-dd')
+		return new Date(timestamp*1000).toLocaleString();
+    return new Date(timestamp*1000).toString('yyyy-MM-dd')
 	});
 
 
@@ -154,10 +155,14 @@ if (Meteor.isClient) {
 	};
 
 	Template.searches.events({
-	  "submit .new-search": function (event) {
+	  "click button.new-search": function (event) {
 	    // This function is called when the new task form is submitted
 
-	    var text = event.target.text.value;
+	    //var text = event.target.text.value;
+	    var inputBox = $("input.search-term-text");
+	    var text = inputBox.val();
+
+	    if (text.length <= 0 ) return;
 
 	    Searches.insert({
 	      headingSearchText: text,
@@ -165,8 +170,9 @@ if (Meteor.isClient) {
 	    });
 
 	    // Clear form
-	    event.target.text.value = "";
-
+	    //event.target.text.value = "";
+	    inputBox.val("");
+	    
 	    // Prevent default form submit
 	    return false;
   	},

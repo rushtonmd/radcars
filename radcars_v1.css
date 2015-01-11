@@ -33,6 +33,10 @@ h1 {
 	color: white;
 }
 
+.searches input {
+	color: black;
+}
+
 .cars {
 	color: white;
 }
@@ -79,6 +83,9 @@ h1 {
     width: 100%;
 }
 
+.refresh-data {
+	margin-top: 1rem;
+}
 .image-container {
 	width: 100%; 
 	margin-top: 1rem;

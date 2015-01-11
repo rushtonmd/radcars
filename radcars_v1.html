@@ -30,7 +30,7 @@
 				{{/with}}
 			</div>
 			<div>
-				<span>Location: {{location.state}}</span><br>
+				<span>Location: {{location.city}}</span><br>
 				<span>Posted: {{prettifyDate timestamp}}</span>
 			</div>
 		</a>
@@ -46,10 +46,12 @@
 
 			<div class="row">
 				<div>
-					<form class="new-search">
-			    	<input type="text" name="text" placeholder="Type to add new search" />
-			    	<button type="submit" class="btn btn-primary">Submit</button>
-			  	</form>
+					<div class="input-group input-group-lg">
+					  <input type="text" class="form-control search-term-text" placeholder="Type to add a new search term"/>
+					  <span class="input-group-btn">
+			        <button class="btn btn-primary new-search" type="button">ADD</button>
+			      </span>
+					</div>
 		  	</div>
 	  	</div>
 	  	<div class="row">
