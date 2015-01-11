@@ -1,0 +1,88 @@
+<head>
+	<title>RadCars v1</title>
+</head>
+
+<body>
+{{>navigationBar}}
+
+</body>
+
+<template name="cars">
+	<div class="container cars">
+
+			<h1>Bay Area Cars</h1>
+
+			<div id="car-container">
+				{{> pagesNav}}
+				{{> pages}}
+
+  		</div>
+  </div> 
+</template>
+
+<template name="car">
+	<div class = "item">
+		<a href="{{external_url}}">
+			<h3>{{heading}}</h3>
+			<div class="image-container">
+				{{#with image}}
+					<img src="{{url}}">
+				{{/with}}
+			</div>
+			<div>
+				<span>Location: {{location.state}}</span><br>
+				<span>Posted: {{prettifyDate timestamp}}</span>
+			</div>
+		</a>
+	</div>
+</template>
+
+
+<template name="searches">
+	<div class="container searches">
+		<div class="row col-sm-6 col-sm-offset-3">
+
+			<h1>Searches</h1>
+
+			<div class="row">
+				<div>
+					<form class="new-search">
+			    	<input type="text" name="text" placeholder="Type to add new search" />
+			    	<button type="submit" class="btn btn-primary">Submit</button>
+			  	</form>
+		  	</div>
+	  	</div>
+	  	<div class="row">
+	  		<button class="btn btn-success btn-lg refresh-data">
+	  			<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>  Refresh Data
+	  		</button>
+	  	</div>
+			<div id="search-container" class="row">
+				{{> pages}}
+	    	{{> pagesNav}}
+	  	</div>
+  	</div>
+  </div> 
+</template>
+
+<template name="search">
+	<div class="row search-item">
+		<div>
+			<button class="btn btn-danger delete-search">X</button>
+			<span>"{{headingSearchText}}"</span>
+		</div>
+	</div>
+</template>
+
+<template name="navigationBar">
+    <nav class="navbar navbar-default " role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header admin-header">
+            		<a class="navbar-brand admin-header-item" href="/curation">Curation</a>
+                <a class="navbar-brand admin-header-item" href="/searches">Searches</a>
+                <!-- <a class="navbar-brand admin-header-item" href="/trash">Trash</a> -->
+                <!--<a class="navbar-brand admin-header-item sign-out-header" href="/sign-out">Sign-Out</a>-->
+            </div>
+        </div>
+    </nav>
+</template>
