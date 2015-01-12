@@ -3,8 +3,8 @@ Searches = new Mongo.Collection("searches");
 
 CarPages = new Meteor.Pagination(Cars, {
 	router: "iron-router",
-	//homeRoute: ["/", "/admin/"],
-	homeRoute: "/curation/",
+	homeRoute: ["/", "/curation/"],
+	//homeRoute: "/curation/",
 	route: "/curation/",
 	routerTemplate: "car",
 	routerLayout: "cars",
@@ -16,7 +16,7 @@ CarPages = new Meteor.Pagination(Cars, {
 	//},
 	itemTemplate: 'car',
 	infinite: true,
-	perPage: 5,
+	perPage: 10,
 	sort: {
 		timestamp: -1
 	}
@@ -68,18 +68,36 @@ Images = new FS.Collection("images", {
                 console.warn(message);
             }
         }
+
     }
 });
 
+// Example:http://search.3taps.com/?auth_token=468f64bb897eeec9d62eefacab12738d&region=USA-SFO&heading=audi&category=VAUT&anchor=1706462924&page=1&tier=0
+
+// Need to specify retvals to get the specific return values
+// Heading, location, price, images
+// id 
+// source 
+// category 
+// location 
+// external_id 
+// external_url 
+// heading 
+// timestamp
+
+var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images";
+
 var apiData = {
 	url: "http://search.3taps.com",
+
 	params: { 
         "auth_token": "468f64bb897eeec9d62eefacab12738d",
-        "rpp": "100",
+        "retvals": apiRetVals,
+        "rpp": "50",
         "lat": "37.7833",
         "long":"122.4167",
         //"radius":"10000mi",
-        "source": "CRAIG",
+        //"source": "CRAIG",
         //"sort":"distance",
         "location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
         //"location.state":"USA-CA",
@@ -96,16 +114,30 @@ if (Meteor.isClient) {
     return new Date(timestamp*1000).toString('yyyy-MM-dd')
 	});
 
+	Handlebars.registerHelper("prettifyMoney", function(money){
+		return accounting.formatMoney(money);
+	});
+
+	Handlebars.registerHelper("longifySource", function(source){
+
+		if (source === "AUTOD") return "AutoTrader";
+		if (source === "CARSD") return "Cars.com";
+		if (source === "E_BAY") return "Ebay";
+		if (source === "CRAIG") return "Craigslist";
+		return source;
+
+	});
+
 
 	Template.body.rendered = function(){
 		  if(!this._rendered) {
       	this._rendered = true;
 				//var $container = $('#car-container');
 				// initialize
-				$container.masonry({
-				  columnWidth: 200,
-				  itemSelector: '.item'
-				});
+				// $container.masonry({
+				//   columnWidth: 200,
+				//   itemSelector: '.item'
+				// });
 				//console.log("masonry!");
     	}
 	};
@@ -172,7 +204,7 @@ if (Meteor.isClient) {
 	    // Clear form
 	    //event.target.text.value = "";
 	    inputBox.val("");
-	    
+
 	    // Prevent default form submit
 	    return false;
   	},
@@ -209,21 +241,45 @@ if (Meteor.isServer) {
 
 		searches.forEach(function (search) {
 		  apiData.params.heading = search.headingSearchText;
-		  console.log("Searching for: " + apiData.params.heading);
+		  //console.log("Searching for: " + apiData.params.heading);
 			Meteor.http.get(apiData.url, apiData, function( err, res ){
-				//console.log("Data returned!");
-
+				//console.log("Data returned!" + res.data.postings.length);
+				//console.log(res.data.postings);
 				var postings = res.data.postings;
 				_.each(postings, function(post){
-					Cars.insert(post, function(){
-						//fetchImages();
-					});
+					//console.log("POST: " + post.heading)
+					var newCar = Cars.insert(post);
+					fetchImage(newCar);
 				});
-
-				fetchImages();
 			});
 		});
 	};
+
+	var fetchImage = function fetchImage(postID){
+		var request = Meteor.npmRequire('request');
+		var carObj = Cars.findOne(postID);
+		//console.log(carObj.heading + " : " + carObj.images[0].full);
+		if (carObj.images.length <= 0) return;
+
+		var imgUrl = carObj.images[0].full || carObj.images[0].thumb;
+
+		request.get({url: imgUrl, encoding: null}, Meteor.bindEnvironment(function(e, r, buffer){
+		  var newFile = new FS.File();
+		  newFile.attachData(buffer, {type: 'image/jpeg'}, function(error){
+		      if(error) throw error;
+		      newFile.name('carImage.jpeg');
+
+		      var newImage = Images.insert(newFile);
+
+		      Cars.update(carObj._id, {$set: {imageID: newImage._id}})
+
+		  });
+		}));
+
+
+
+	};
+
 
 	var fetchImages = function fetchImages(){
 		var request = Meteor.npmRequire('request');

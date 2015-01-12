@@ -1,5 +1,17 @@
 <head>
-	<title>RadCars v1</title>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Rad Cars</title>
+    <meta name="description" content="Mark and Jason's Rad Cars">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+
+    <meta name="robots" content="index,follow,archive">
+    <meta name="author" content="Mark D Rushton">
+
 </head>
 
 <body>
@@ -22,8 +34,8 @@
 
 <template name="car">
 	<div class = "item">
-		<a href="{{external_url}}">
-			<h3>{{heading}}</h3>
+		<a href="{{external_url}}" target="_blank">
+			<h3>{{heading}} ({{prettifyMoney price}})</h3>
 			<div class="image-container">
 				{{#with image}}
 					<img src="{{url}}">
@@ -31,7 +43,8 @@
 			</div>
 			<div>
 				<span>Location: {{location.city}}</span><br>
-				<span>Posted: {{prettifyDate timestamp}}</span>
+				<span>Posted: {{prettifyDate timestamp}}</span><br>
+				<span>Source: {{longifySource source}}</span>
 			</div>
 		</a>
 	</div>
