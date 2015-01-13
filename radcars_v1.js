@@ -97,11 +97,13 @@ var apiData = {
         "lat": "37.7833",
         "long":"122.4167",
         //"radius":"10000mi",
-        //"source": "CRAIG",
+        "source": "CRAIG|AUTOC|AUTOD|EBAYM",
         //"sort":"distance",
         "location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
         //"location.state":"USA-CA",
         "category": 'VAUT',
+        "status": "for_sale",
+        "has_image": "1",
         //"heading":'audi a3 quattro'
     }
 };
@@ -121,12 +123,22 @@ if (Meteor.isClient) {
 	Handlebars.registerHelper("longifySource", function(source){
 
 		if (source === "AUTOD") return "AutoTrader";
+		if (source === "AUTOC") return "AutoTrader";
 		if (source === "CARSD") return "Cars.com";
-		if (source === "E_BAY") return "Ebay";
+		if (source === "EBAYM") return "Ebay";
 		if (source === "CRAIG") return "Craigslist";
 		return source;
 
 	});
+
+	Template.navigationBar.helpers({
+    activeIfTemplateIs: function (template) {
+      var currentRoute = Router.current();
+      console.log(currentRoute.lookupTemplate());
+      return currentRoute &&
+        template === currentRoute.lookupTemplate() ? 'active' : '';
+    }
+  });
 
 
 	Template.body.rendered = function(){
@@ -166,8 +178,9 @@ if (Meteor.isClient) {
 			//var file = new FS.File(tsturl); // This could be grapped from the url
 			//file.attachData(tsturl, function(error) {console.log("ERR: " + error);});
 			//Images.insert(file, function(){console.log(arguments);});
-
-			return Images.findOne(this.imageID) || {url:"/noimage.jpg"};
+			//console.log("HEY!" + this.imageID);
+			var img = Images.findOne(this.imageID);
+			return img && img.url() || "/noimage.jpg";
 		}
 	});
 

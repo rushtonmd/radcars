@@ -25,6 +25,22 @@ body {
     /*background: #e9e9e9;*/
 }
 
+nav.car-nav {
+  background-color: rgba(0,0,0, 0.55);
+  border-color: rgba(231, 231, 231, 0.3);
+  color:white;
+}
+a.navbar-brand.admin-header-item {
+  color: white;
+}
+.navbar-default .navbar-nav > li > a {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.navbar-default .navbar-nav > .active > a {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
 h1 {
 	text-align: center;
 }
@@ -38,7 +54,7 @@ h1 {
 }
 
 .cars {
-	color: white;
+	padding-top: 6rem;
 }
 
 #search-container {
@@ -73,6 +89,42 @@ h1 {
     -webkit-box-sizing: border-box;
     box-shadow: 2px 2px 4px 0 #ccc;
     font-size: 1.5rem;
+}
+
+div.thumbnail .carimage {
+  background-size: cover;
+  height: 260px;
+  width: 100%;  
+  position: relative;  
+}
+
+.carimage .price {
+  background-color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
+
+.thumbnail .caption.price {
+  padding: 0px;
+  padding-left: 9px;
+  font-weight: normal;
+  
+}
+
+.caption.price span {
+  font-size: 1.2rem;
+}
+
+div.caption.heading  {
+  padding: 9px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
+
+div.caption span {
+  font-size: 1.5rem;
 }
 
 .item h3 {

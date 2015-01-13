@@ -19,7 +19,7 @@
 
 </body>
 
-<template name="cars">
+<template name="carsOLD">
 	<div class="container cars">
 
 			<h1>Bay Area Cars</h1>
@@ -32,7 +32,7 @@
   </div> 
 </template>
 
-<template name="car">
+<template name="carOLD">
 	<div class = "item">
 		<a href="{{external_url}}" target="_blank">
 			<h3>{{heading}} ({{prettifyMoney price}})</h3>
@@ -48,6 +48,39 @@
 			</div>
 		</a>
 	</div>
+</template>
+
+<template name="cars">
+	<div class="container cars">
+		<div class="row">
+			
+
+					{{> pagesNav}}
+					{{> pages}}
+
+	  </div> 
+	</div>
+</template>
+
+<template name="car">
+	<div id="car-container" class="col-sm-6 col-md-4">
+	<a href="{{external_url}}" target="_blank">
+
+	  <div class="thumbnail">
+	  	
+	  	
+	    	<div class="carimage" style="background-image:url({{image}})" alt="...">
+	    
+	    		<div class="price caption"><span>{{prettifyMoney price}} on {{longifySource source}}</span></div>
+	    		<div class="caption heading">
+	      		<span>{{heading}}</span>
+	    		</div>
+	    	</div>
+	    
+	    
+	  </div>
+	</a>
+</div>
 </template>
 
 
@@ -90,14 +123,27 @@
 </template>
 
 <template name="navigationBar">
-    <nav class="navbar navbar-default " role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top car-nav" role="navigation">
         <div class="container-fluid">
-            <div class="navbar-header admin-header">
-            		<a class="navbar-brand admin-header-item" href="/curation">Curation</a>
-                <a class="navbar-brand admin-header-item" href="/searches">Searches</a>
+            <div class="navbar-header">
+            	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				        <span class="sr-only">Toggle navigation</span>
+				        <span class="icon-bar"></span>
+				        <span class="icon-bar"></span>
+				        <span class="icon-bar"></span>
+				      </button>
+            		<a class="navbar-brand admin-header-item" href="/curation">Bay Area Rad Cars</a>
                 <!-- <a class="navbar-brand admin-header-item" href="/trash">Trash</a> -->
                 <!--<a class="navbar-brand admin-header-item sign-out-header" href="/sign-out">Sign-Out</a>-->
+
             </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            	<ul class="nav navbar-nav">
+        				<li class="{{ activeIfTemplateIs 'car' }}"><a href="/curation">Curation</a></li>
+        				<li class="{{ activeIfTemplateIs 'search' }}"><a href="/searches">Searches</a></li>
+        			</ul>
+            </div>
+
         </div>
     </nav>
 </template>
