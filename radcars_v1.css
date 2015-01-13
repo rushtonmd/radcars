@@ -93,6 +93,8 @@ h1 {
 
 div.thumbnail .carimage {
   background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   height: 260px;
   width: 100%;  
   position: relative;  
