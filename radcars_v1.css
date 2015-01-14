@@ -18,6 +18,10 @@ html::after {
   z-index: -1;   
 }
 
+a:hover {
+    text-decoration: none;
+}
+
 body {
     font: 'Open Sans', Arial, Sans-serif;
     margin: 0;
@@ -52,8 +56,12 @@ h1 {
 .searches input {
 	color: black;
 }
+div.entry {
+  margin-top: 6rem;
+}
 
-.cars {
+.cars,
+.searches {
 	padding-top: 6rem;
 }
 
@@ -114,6 +122,8 @@ div.thumbnail .carimage {
 
 .caption.price span {
   font-size: 1.2rem;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 div.caption.heading  {

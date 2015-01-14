@@ -3,9 +3,9 @@ Searches = new Mongo.Collection("searches");
 
 CarPages = new Meteor.Pagination(Cars, {
 	router: "iron-router",
-	homeRoute: ["/", "/curation/"],
-	//homeRoute: "/curation/",
-	route: "/curation/",
+	//homeRoute: ["/", "/curation/"],
+	homeRoute: "/",
+	route: "/",
 	routerTemplate: "car",
 	routerLayout: "cars",
 	//routeSettings: function(route){
@@ -16,7 +16,7 @@ CarPages = new Meteor.Pagination(Cars, {
 	//},
 	itemTemplate: 'car',
 	infinite: true,
-	perPage: 10,
+	perPage: 50,
 	sort: {
 		timestamp: -1
 	}
@@ -28,9 +28,9 @@ CarSearchPages = new Meteor.Pagination(Searches, {
 	route: "/searches/",
 	routerTemplate: "search",
 	routerLayout: "searches",
-	//routeSettings: function(route){
-		//AccountsEntry.signInRequired(route);
-	//},
+	routeSettings: function(route){
+		AccountsEntry.signInRequired(route);
+	},
 	//availableSettings: {
 		//sort: true
 	//},
@@ -38,7 +38,7 @@ CarSearchPages = new Meteor.Pagination(Searches, {
 	infinite: true,
 	perPage: 20,
 	sort: {
-		rank: -1
+		headingSearchText: 1
 	}
 });
 
@@ -72,6 +72,34 @@ Images = new FS.Collection("images", {
     }
 });
 
+// Only allow inserting of images from a logged in user
+Images.allow({
+    insert: function(userId, file) {
+    	return false;
+    },
+    update: function(userId, file, fields, modifier) {
+    		return false;
+    },
+    remove: function(userId, file) {
+        return false;
+    },
+    download: function() {
+        return true;
+    }
+});
+
+Searches.allow({
+    insert: function(userId, file) {
+    	return userId;
+    },
+    update: function(userId, file, fields, modifier) {
+    		return false;
+    },
+    remove: function(userId, file) {
+        return userId;
+    }
+});
+
 // Example:http://search.3taps.com/?auth_token=468f64bb897eeec9d62eefacab12738d&region=USA-SFO&heading=audi&category=VAUT&anchor=1706462924&page=1&tier=0
 
 // Need to specify retvals to get the specific return values
@@ -85,31 +113,62 @@ Images = new FS.Collection("images", {
 // heading 
 // timestamp
 
-var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images";
+// var apiDataFactory = function apiDataFactory(heading, tier){
 
-var apiData = {
-	url: "http://search.3taps.com",
+// 	var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images";
 
-	params: { 
-        "auth_token": "468f64bb897eeec9d62eefacab12738d",
-        "retvals": apiRetVals,
-        "rpp": "50",
-        "lat": "37.7833",
-        "long":"122.4167",
-        //"radius":"10000mi",
-        "source": "CRAIG|AUTOC|AUTOD|EBAYM",
-        //"sort":"distance",
-        "location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
-        //"location.state":"USA-CA",
-        "category": 'VAUT',
-        "status": "for_sale",
-        "has_image": "1",
-        //"heading":'audi a3 quattro'
-    }
-};
+// 	return {
+// 		url: "http://search.3taps.com",
+
+// 		params: { 
+// 	        "auth_token": "468f64bb897eeec9d62eefacab12738d",
+// 	        "retvals": apiRetVals,
+// 	        "rpp": "50",
+// 	        "lat": "37.7833",
+// 	        "long":"122.4167",
+// 	        //"radius":"1500mi",
+// 	        "source": "CRAIG|AUTOC|AUTOD|EBAYM",
+// 	        //"sort":"distance",
+// 	        "location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
+// 	        //"location.state":"USA-CA",
+// 	        //"location.county": "USA-CA-SAF|USA-CA-STL|USA-OR-WAH",
+// 	        "category": 'VAUT',
+// 	        "status": "for_sale",
+// 	        //"has_image": "1",
+// 	        "tier":tier,
+// 	        "heading":heading
+//     }
+//   };
+// };
+//var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images";
+
+// var apiData = {
+// 	url: "http://search.3taps.com",
+
+// 	params: { 
+//         "auth_token": "468f64bb897eeec9d62eefacab12738d",
+//         "retvals": apiRetVals,
+//         "rpp": "50",
+//         "lat": "37.7833",
+//         "long":"122.4167",
+//         //"radius":"1500mi",
+//         "source": "CRAIG|AUTOC|AUTOD|EBAYM",
+//         //"sort":"distance",
+//         "location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
+//         //"location.state":"USA-CA",
+//         //"location.county": "USA-CA-SAF|USA-CA-STL|USA-OR-WAH",
+//         "category": 'VAUT',
+//         "status": "for_sale",
+//         //"has_image": "1",
+//         "tier":"0"
+//         //"heading":'audi a3 quattro'
+//     }
+// };
 
 
 if (Meteor.isClient) {
+
+	Meteor.subscribe('images');
 
 	Handlebars.registerHelper("prettifyDate", function(timestamp) {
 		return new Date(timestamp*1000).toLocaleString();
@@ -210,7 +269,7 @@ if (Meteor.isClient) {
 	    if (text.length <= 0 ) return;
 
 	    Searches.insert({
-	      headingSearchText: text,
+	      headingSearchText: text.toLowerCase(),
 	      rank: new Date().getTime()
 	    });
 
@@ -228,51 +287,111 @@ if (Meteor.isClient) {
 	});
 	Template.search.events({
 		"click .delete-search": function(){
-			Searches.remove(this._id);
+			Meteor.call('deleteSearch', {searchID: this._id});
 			alert("Search " + this.headingSearchText + " removed!");
 
 		}
 	});
+
+
+	Meteor.startup(function() {
+     AccountsEntry.config({
+         //logo: 'logo.png', // if set displays logo above sign-in options
+         //privacyUrl: '/privacy-policy', // if set adds link to privacy policy and 'you agree to ...' on sign-up page
+         //termsUrl: '/terms-of-use', // if set adds link to terms  'you agree to ...' on sign-up page
+         homeRoute: '/sign-in', // mandatory - path to redirect to after sign-out
+         dashboardRoute: '/searches', // mandatory - path to redirect to after successful sign-in
+         //profileRoute: 'profile',
+         passwordSignupFields: 'EMAIL_ONLY',
+         showSignupCode: true,
+         showOtherLoginServices: false // Set to false to hide oauth login buttons on the signin/signup pages. Useful if you are using something like accounts-meld or want to oauth for api access
+         // extraSignUpFields: [{ // Add extra signup fields on the signup page
+         //     field: "name", // The database property you want to store the data in
+         //     name: "This Will Be The Initial Value", // An initial value for the field, if you want one
+         //     label: "Full Name", // The html lable for the field
+         //     placeholder: "John Doe", // A placeholder for the field
+         //     type: "text", // The type of field you want
+         //     required: true // Adds html 5 required property if true
+         // }]
+     });
+ 	});
 }
 
 if (Meteor.isServer) {
 
+
+	Meteor.publish('images', function() {
+        return Images.find();
+    });
+
 	Meteor.methods({
 		repopulateCars: function(){
 			populateCars();
+		},
+		deleteSearch: function(options){
+			Searches.remove(options.searchID);
+			flushAllData();
 		}
 	});
 
-	var populateCars = function populateCars(){
-		//console.log("Getting car data...");
-
-		// Clear all items from database
+	var flushAllData = function flushAllData(){
+		console.log("Flushing Data.")
 		Cars.remove({});
 		Images.remove({});
+		populateCars(0);
+	};
+
+	var populateCars = function populateCars(tier){
+		console.log("Getting car data for tier " + tier);
 
 		var searches = Searches.find({});
 
 		searches.forEach(function (search) {
-		  apiData.params.heading = search.headingSearchText;
+		  //apiData.params.heading = search.headingSearchText;
+		  //apiData.params.tier = 0;
+
+		  var apiData = apiDataFactory(search.headingSearchText, tier);
 		  //console.log("Searching for: " + apiData.params.heading);
 			Meteor.http.get(apiData.url, apiData, function( err, res ){
 				//console.log("Data returned!" + res.data.postings.length);
-				//console.log(res.data.postings);
+				//console.log(res.data);
 				var postings = res.data.postings;
 				_.each(postings, function(post){
 					//console.log("POST: " + post.heading)
-					var newCar = Cars.insert(post);
-					fetchImage(newCar);
+					//var newCar = Cars.insert(post);
+					var newCar = Cars.upsert(
+						{
+							external_id: post.external_id
+						},
+						{ 
+							$set: {
+								category: post.category,
+								external_id: post.external_id,
+								external_url: post.external_url,
+								heading: post.heading,
+								id: post.id,
+								images: post.images,
+								location: post.location,
+								price: post.price,
+								source: post.source,
+								timestamp: post.timestamp
+								}
+						});
+					//console.log(newCar);
+					fetchImage(newCar.insertedId);
 				});
+
 			});
+
 		});
 	};
 
 	var fetchImage = function fetchImage(postID){
+		if (!postID) return;
 		var request = Meteor.npmRequire('request');
 		var carObj = Cars.findOne(postID);
 		//console.log(carObj.heading + " : " + carObj.images[0].full);
-		if (carObj.images.length <= 0) return;
+		if (!carObj || !carObj.images || carObj.images.length <= 0) return;
 
 		var imgUrl = carObj.images[0].full || carObj.images[0].thumb;
 
@@ -294,61 +413,101 @@ if (Meteor.isServer) {
 	};
 
 
-	var fetchImages = function fetchImages(){
-		var request = Meteor.npmRequire('request');
-		// Go through each car and get the URL
-		var allCars = Cars.find();
+	// var fetchImages = function fetchImages(){
+	// 	var request = Meteor.npmRequire('request');
+	// 	// Go through each car and get the URL
+	// 	var allCars = Cars.find();
 
-		allCars.forEach(function(car){
-			var url = car.external_url;
-			//console.log("Fetching " + url);
-			// use $(".carousel.multiimage img:first").attr("src");
-			Meteor.http.get(url, function(err, res){
-				var $ = cheerio.load(res.content);
-				var imgUrl = $(".userbody").find('img').attr("src");
-				//console.log("Updating " + car._id + " with " + imgUrl);
+	// 	allCars.forEach(function(car){
+	// 		var url = car.external_url;
+	// 		//console.log("Fetching " + url);
+	// 		// use $(".carousel.multiimage img:first").attr("src");
+	// 		Meteor.http.get(url, function(err, res){
+	// 			var $ = cheerio.load(res.content);
+	// 			var imgUrl = $(".userbody").find('img').attr("src");
+	// 			//console.log("Updating " + car._id + " with " + imgUrl);
 
-				request.get({url: imgUrl, encoding: null}, Meteor.bindEnvironment(function(e, r, buffer){
-				  var newFile = new FS.File();
-				  newFile.attachData(buffer, {type: 'image/jpeg'}, function(error){
-				      if(error) throw error;
-				      newFile.name('carImage.jpeg');
+	// 			request.get({url: imgUrl, encoding: null}, Meteor.bindEnvironment(function(e, r, buffer){
+	// 			  var newFile = new FS.File();
+	// 			  newFile.attachData(buffer, {type: 'image/jpeg'}, function(error){
+	// 			      if(error) throw error;
+	// 			      newFile.name('carImage.jpeg');
 
-				      var newImage = Images.insert(newFile);
+	// 			      var newImage = Images.insert(newFile);
 
-				      Cars.update(car._id, {$set: {imageID: newImage._id}})
+	// 			      Cars.update(car._id, {$set: {imageID: newImage._id}})
 
-				  });
-				}));
-			});
-		});
+	// 			  });
+	// 			}));
+	// 		});
+	// 	});
 
 		//console.log("DONE!");
 
-	};
+	// };
 
-	var saveImageLocally = function saveImageLocally(){
-		var url = "http://images.craigslist.org/00b0b_5vNqTpyxLPb_600x450.jpg";
-		var request = Meteor.npmRequire('request');
+	// var saveImageLocally = function saveImageLocally(){
+	// 	var url = "http://images.craigslist.org/00b0b_5vNqTpyxLPb_600x450.jpg";
+	// 	var request = Meteor.npmRequire('request');
 
-		request.get({url: url, encoding: null}, Meteor.bindEnvironment(function(e, r, buffer){
-		  var newFile = new FS.File();
-		  newFile.attachData(buffer, {type: 'image/jpeg'}, function(error){
-		      if(error) throw error;
-		      newFile.name('myGraphic.jpeg');
+	// 	request.get({url: url, encoding: null}, Meteor.bindEnvironment(function(e, r, buffer){
+	// 	  var newFile = new FS.File();
+	// 	  newFile.attachData(buffer, {type: 'image/jpeg'}, function(error){
+	// 	      if(error) throw error;
+	// 	      newFile.name('myGraphic.jpeg');
 
-		      Images.insert(newFile, function(err, fileObj){
-		      	//console.log("WE MADE IT!" + fileObj._id);
-		      });
-		  });
-		}));
+	// 	      Images.insert(newFile, function(err, fileObj){
+	// 	      	//console.log("WE MADE IT!" + fileObj._id);
+	// 	      });
+	// 	  });
+	// 	}));
 
 
+	// };
+
+	var apiDataFactory = function apiDataFactory(heading, tier){
+
+	var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images";
+
+		return {
+			url: "http://search.3taps.com",
+
+			params: { 
+		        "auth_token": "468f64bb897eeec9d62eefacab12738d",
+		        "retvals": apiRetVals,
+		        "rpp": "50",
+		        "lat": "37.7833",
+		        "long":"122.4167",
+		        //"radius":"1500mi",
+		        "source": "CRAIG|AUTOC|AUTOD|EBAYM",
+		        //"sort":"distance",
+		        "location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
+		        //"location.state":"USA-CA",
+		        //"location.county": "USA-CA-SAF|USA-CA-STL|USA-OR-WAH",
+		        "category": 'VAUT',
+		        "status": "for_sale",
+		        "has_image": "1",
+		        "tier":tier,
+		        "heading":heading
+		    }
+		  };
 	};
 
 	Meteor.startup(function () {
-		// code to run on server at startup
-		populateCars();
+
+		var SITE_SIGNUP_CODE = process.env.site_signup_code || '12345';
+
+    AccountsEntry.config({
+        signupCode: SITE_SIGNUP_CODE //, // only restricts username+password users, not OAuth
+        //defaultProfile: someDefault: 'default'
+    });
+
+		// Update tier 0 every minute
+		var populateTier0Interval = Meteor.setInterval(function(){populateCars(0)}, 300000);
+
+		// Update tier 1 every 15 minutes
+		var populateTier1Interval = Meteor.setInterval(function(){populateCars(1)}, 900000); 
+
 		//saveImageLocally();
 	});
 }
