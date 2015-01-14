@@ -497,6 +497,8 @@ if (Meteor.isServer) {
 
 		var SITE_SIGNUP_CODE = process.env.site_signup_code || '12345';
 
+		console.log("Accounts configured with signup code: " + SITE_SIGNUP_CODE);
+
     AccountsEntry.config({
         signupCode: SITE_SIGNUP_CODE //, // only restricts username+password users, not OAuth
         //defaultProfile: someDefault: 'default'
