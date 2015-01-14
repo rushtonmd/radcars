@@ -99,6 +99,10 @@ div.entry {
     font-size: 1.5rem;
 }
 
+div.thumbnail {
+  display: none;
+}
+
 div.thumbnail .carimage {
   background-size: cover;
   background-repeat: no-repeat;

@@ -16,7 +16,9 @@ CarPages = new Meteor.Pagination(Cars, {
 	//},
 	itemTemplate: 'car',
 	infinite: true,
-	perPage: 50,
+	infiniteRateLimit: 2,
+	infiniteTrigger: 20,
+	perPage: 7,
 	sort: {
 		timestamp: -1
 	}
@@ -193,7 +195,7 @@ if (Meteor.isClient) {
 	Template.navigationBar.helpers({
     activeIfTemplateIs: function (template) {
       var currentRoute = Router.current();
-      console.log(currentRoute.lookupTemplate());
+      //console.log(currentRoute.lookupTemplate());
       return currentRoute &&
         template === currentRoute.lookupTemplate() ? 'active' : '';
     }
@@ -256,6 +258,16 @@ if (Meteor.isClient) {
 		  	//console.log("REPOPULATING!");
       	this._rendered = true;
     	}
+	};
+
+	Template.car.created = function(){
+		//$("div.thumbnail").css({ opacity: 0 });
+		//console.log("CREATED!");
+	};
+
+	Template.car.rendered = function(){
+		//console.log("here!");
+		this.$("div.thumbnail").fadeIn(1000);
 	};
 
 	Template.searches.events({
