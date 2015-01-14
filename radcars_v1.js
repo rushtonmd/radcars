@@ -495,7 +495,7 @@ if (Meteor.isServer) {
 
 	Meteor.startup(function () {
 
-		var SITE_SIGNUP_CODE = process.env.site_signup_code || '12345';
+		var SITE_SIGNUP_CODE = typeof Meteor.settings != 'undefined' && Meteor.settings["site_signup_code"] || '12345';
 
 		console.log("Accounts configured with signup code: " + SITE_SIGNUP_CODE);
 
