@@ -11,12 +11,13 @@ CarPages = new Meteor.Pagination(Cars, {
 	//routeSettings: function(route){
 		//AccountsEntry.signInRequired(route);
 	//},
-	//availableSettings: {
-		//sort: true
-	//},
+	availableSettings: {
+		sort: true,
+		filters: true
+	},
 	itemTemplate: 'car',
 	infinite: true,
-	infiniteRateLimit: 2,
+	infiniteRateLimit: 1.5,
 	infiniteTrigger: 20,
 	perPage: 7,
 	sort: {
@@ -225,6 +226,13 @@ if (Meteor.isClient) {
 		'click button.refresh-data': function(){
 			console.log("REPOPULATING!");
 			Meteor.call('repopulateCars');
+		},
+		'keyup input.filter-cars-text': function(){
+			var inputBox = $("input.filter-cars-text");
+	    var text = inputBox.val().toLowerCase();
+	    CarPages.set({filters: {headingSearchable : {$regex: text}}});
+
+	    //Meteor.call('filterCars', {searchText: text});
 		}
 	})
 	// counter starts at 0
@@ -248,7 +256,7 @@ if (Meteor.isClient) {
 	Template.car.events({
 		'click button': function () {
 			// increment the counter when button is clicked
-			Session.set("counter", Session.get("counter") + 1);
+			//Session.set("counter", Session.get("counter") + 1);
 		}
 	});
 
@@ -294,7 +302,7 @@ if (Meteor.isClient) {
   	},
   	'click button.refresh-data': function(){
 			console.log("REPOPULATING!");
-			Meteor.call('repopulateCars');
+			Meteor.call('blowAwayData');
 		}
 	});
 	Template.search.events({
@@ -340,9 +348,17 @@ if (Meteor.isServer) {
 		repopulateCars: function(){
 			populateCars();
 		},
+		blowAwayData: function(){
+			flushAllData();
+		},
 		deleteSearch: function(options){
 			Searches.remove(options.searchID);
-			flushAllData();
+			//flushAllData();
+		},
+		filterCars: function(options){
+			if (options.searchText.length < 2) return;
+			//console.log("Filtering by: " + options.searchText);
+			//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
 		}
 	});
 
@@ -381,6 +397,7 @@ if (Meteor.isServer) {
 								external_id: post.external_id,
 								external_url: post.external_url,
 								heading: post.heading,
+								headingSearchable: post.heading.toLowerCase(),
 								id: post.id,
 								images: post.images,
 								location: post.location,
@@ -523,6 +540,7 @@ if (Meteor.isServer) {
 		var populateTier1Interval = Meteor.setInterval(function(){populateCars(1)}, 900000); 
 
 		//saveImageLocally();
+
 	});
 }
 

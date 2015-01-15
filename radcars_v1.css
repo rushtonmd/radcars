@@ -21,6 +21,18 @@ html::after {
 a:hover {
     text-decoration: none;
 }
+.navbar-header a.navbar-brand.admin-header-item:hover,
+.navbar-header a.navbar-brand.admin-header-item:active,
+.navbar-header a.navbar-brand.admin-header-item:visited {
+  text-decoration: none;
+  color: rgba(255,255,255, 1.0);
+}
+
+.navbar-header a.navbar-brand.admin-header-item:hover,
+.navbar-header a.navbar-brand.admin-header-item:active {
+  text-decoration: none;
+  color: rgba(255,255,255, 0.9);
+}
 
 body {
     font: 'Open Sans', Arial, Sans-serif;
