@@ -49,17 +49,19 @@ var populateCars = function populateCars(tier, source) {
 					external_id: post.external_id
 				}, {
 					$set: {
-						category: post.category,
+						//category: post.category,
 						external_id: post.external_id,
 						external_url: post.external_url,
 						heading: post.heading,
 						headingSearchable: post.heading.toLowerCase(),
 						id: post.id,
 						images: post.images,
-						location: post.location,
+						//location: post.location,
+						cityname: CityName(post.location.city),
 						price: post.price,
 						source: post.source,
-						timestamp: post.timestamp
+						timestamp: post.timestamp,
+						lastupdated: new Date()
 					}
 				});
 				//console.log(newCar);
