@@ -1,0 +1,35 @@
+<template name="searches">
+	<div class="container searches">
+		<div class="row col-sm-6 col-sm-offset-3">
+			<h1>Searches</h1>
+			<div class="row">
+				<div>
+					<div class="input-group input-group-lg">
+						<input type="text" class="form-control search-term-text" placeholder="Type to add a new search term"/>
+						<span class="input-group-btn">
+						<button class="btn btn-primary new-search" type="button">ADD</button>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<button class="btn btn-danger btn-lg refresh-data">
+				<span class="glyphicon glyphicon-fire" aria-hidden="true"></span>  BLOW AWAY DATABASE!
+				<span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+				</button>
+			</div>
+			<div id="search-container" class="row">
+				{{> pages}}
+				{{> pagesNav}}
+			</div>
+		</div>
+	</div>
+</template>
+<template name="search">
+	<div class="row search-item">
+		<div>
+			<button class="btn btn-danger delete-search">X</button>
+			<span>"{{headingSearchText}}"</span>
+		</div>
+	</div>
+</template>

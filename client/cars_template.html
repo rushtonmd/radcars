@@ -1,0 +1,28 @@
+<template name="cars">
+	<div class="container cars">
+		<div class="row">
+			
+			{{> pagesNav}}
+			{{> pages}}
+		</div>
+	</div>
+</template>
+<template name="car">
+	<div id="car-container" class="col-sm-6 col-md-4">
+		<a href="{{external_url}}" target="_blank">
+			<div class="thumbnail">
+				
+				
+				<div class="carimage" style="background-image:url({{image}})" alt="...">
+					
+					<div class="price caption"><span>{{prettifyMoney price}} on {{longifySource source}}</span></div>
+					<div class="caption heading">
+						<span>{{heading}}</span>
+					</div>
+				</div>
+				
+				
+			</div>
+		</a>
+	</div>
+</template>
