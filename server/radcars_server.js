@@ -37,7 +37,7 @@ var populateCars = function populateCars(tier, source) {
 		//apiData.params.tier = 0;
 
 		var apiData = apiDataFactory(search.headingSearchText, tier, source);
-		//console.log("Searching for: " + apiData.params.heading);
+		console.log("Searching for: " + apiData.params.heading);
 		Meteor.http.get(apiData.url, apiData, function(err, res) {
 			//console.log("Data returned!" + res.data.postings.length);
 			//console.log(res.data);
