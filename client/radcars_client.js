@@ -59,6 +59,17 @@ Template.body.events({
 			});
 
 			//Meteor.call('filterCars', {searchText: text});
+		},
+		'click button.clear-search-button': function(){
+			var inputBox = $("input.filter-cars-text");
+			var text = inputBox.val("");
+						CarPages.set({
+				filters: {
+					headingSearchable: {
+						$regex: ""
+					}
+				}
+			});
 		}
 	})
 	// counter starts at 0
