@@ -17,6 +17,14 @@ Meteor.methods({
 		if (options.searchText.length < 2) return;
 		//console.log("Filtering by: " + options.searchText);
 		//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
+	},
+	setCurationValue: function(options) {
+		if (!options._id || !options.curation) return;
+		//console.log("Updating " + options._id + " to " + options.curation);
+		Cars.update(options._id, {$set: {curation: options.curation}});
+		//console.log(x);
+		//console.log("Filtering by: " + options.searchText);
+		//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
 	}
 });
 
@@ -31,44 +39,49 @@ var populateCars = function populateCars(tier, source) {
 	//console.log("Getting car data for tier " + tier + "and source " + source);
 
 	var searches = Searches.find({});
+	var searchCounter = 1;
 
 	searches.forEach(function(search) {
 		//apiData.params.heading = search.headingSearchText;
 		//apiData.params.tier = 0;
 
 		var apiData = apiDataFactory(search.headingSearchText, tier, source);
+		
 		console.log("Searching for: " + apiData.params.heading);
-		Meteor.http.get(apiData.url, apiData, function(err, res) {
-			//console.log("Data returned!" + res.data.postings.length);
-			//console.log(res.data);
-			var postings = res.data.postings;
-			_.each(postings, function(post) {
-				//console.log("POST: " + post.heading)
-				//var newCar = Cars.insert(post);
-				var newCar = Cars.upsert({
-					external_id: post.external_id
-				}, {
-					$set: {
-						//category: post.category,
-						external_id: post.external_id,
-						external_url: post.external_url,
-						heading: post.heading,
-						headingSearchable: post.heading.toLowerCase(),
-						id: post.id,
-						images: post.images,
-						//location: post.location,
-						cityname: CityName(post.location.city),
-						price: post.price,
-						source: post.source,
-						timestamp: post.timestamp,
-						lastupdated: new Date()
-					}
-				});
-				//console.log(newCar);
-				fetchImage(newCar.insertedId);
-			});
 
-		});
+		Meteor.setTimeout(function() {
+			Meteor.http.get(apiData.url, apiData, function(err, res) {
+				console.log("Data returned!" + res.data.postings.length);
+				//console.log(res.data);
+				var postings = res.data.postings;
+				_.each(postings, function(post) {
+					//console.log("POST: " + post.heading)
+					//var newCar = Cars.insert(post);
+					var newCar = Cars.upsert({
+						external_id: post.external_id
+					}, {
+						$set: {
+							//category: post.category,
+							external_id: post.external_id,
+							external_url: post.external_url,
+							heading: post.heading,
+							headingSearchable: post.heading.toLowerCase(),
+							id: post.id,
+							images: post.images,
+							//location: post.location,
+							cityname: CityName(post.location.city),
+							price: post.price,
+							source: post.source,
+							timestamp: post.timestamp,
+							lastupdated: new Date()
+						}
+					});
+					//console.log(newCar);
+					fetchImage(newCar.insertedId);
+				});
+
+			});
+		}, (searchCounter++) * 5000);
 
 	});
 };

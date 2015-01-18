@@ -38,7 +38,7 @@ Template.body.rendered = function() {
 
 Template.body.helpers({
 	cars: function() {
-		return Cars.find({});
+		//return Cars.find({});
 	}
 });
 
@@ -60,10 +60,10 @@ Template.body.events({
 
 			//Meteor.call('filterCars', {searchText: text});
 		},
-		'click button.clear-search-button': function(){
+		'click button.clear-search-button': function() {
 			var inputBox = $("input.filter-cars-text");
 			var text = inputBox.val("");
-						CarPages.set({
+			CarPages.set({
 				filters: {
 					headingSearchable: {
 						$regex: ""
@@ -76,9 +76,9 @@ Template.body.events({
 Session.setDefault("counter", 0);
 
 Template.car.helpers({
-	counter: function() {
-		return Session.get("counter");
-	},
+	// counter: function() {
+	// 	return Session.get("counter");
+	// },
 	image: function() {
 		//var tsturl = "http://images.craigslist.org/00b0b_5vNqTpyxLPb_600x450.jpg";
 		//var file = new FS.File(tsturl); // This could be grapped from the url
@@ -105,15 +105,37 @@ Template.cars.rendered = function() {
 	}
 };
 
-Template.car.created = function() {
-	//$("div.thumbnail").css({ opacity: 0 });
-	//console.log("CREATED!");
-};
-
 Template.car.rendered = function() {
 	//console.log("here!");
 	this.$("div.thumbnail").fadeIn(1000);
 };
+
+Template.carCurationItem.rendered = function() {
+	//console.log("here!");
+	this.$("div.thumbnail").fadeIn(1000);
+};
+
+Template.carCurationItem.events({
+	"click button.toggle-curation-lame": function(event) {
+		var newValue = (this.curation === "LAME") ? "a" : "LAME";
+		Meteor.call('setCurationValue', {_id: this._id, curation: newValue});
+	}
+});
+
+Template.carCurationItem.helpers({
+	image: function() {
+		//var tsturl = "http://images.craigslist.org/00b0b_5vNqTpyxLPb_600x450.jpg";
+		//var file = new FS.File(tsturl); // This could be grapped from the url
+		//file.attachData(tsturl, function(error) {console.log("ERR: " + error);});
+		//Images.insert(file, function(){console.log(arguments);});
+		//console.log("HEY!" + this.imageID);
+		var img = Images.findOne(this.imageID);
+		return img && img.url() || "/noimage.jpg";
+	},
+	lameCar: function(){
+		return this.curation === "LAME";
+	}
+});
 
 Template.searches.events({
 	"click button.new-search": function(event) {
@@ -159,7 +181,7 @@ Meteor.startup(function() {
 		//privacyUrl: '/privacy-policy', // if set adds link to privacy policy and 'you agree to ...' on sign-up page
 		//termsUrl: '/terms-of-use', // if set adds link to terms  'you agree to ...' on sign-up page
 		homeRoute: '/sign-in', // mandatory - path to redirect to after sign-out
-		dashboardRoute: '/searches', // mandatory - path to redirect to after successful sign-in
+		dashboardRoute: '/admin', // mandatory - path to redirect to after successful sign-in
 		//profileRoute: 'profile',
 		passwordSignupFields: 'EMAIL_ONLY',
 		showSignupCode: true,

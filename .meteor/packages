@@ -15,9 +15,9 @@ meteorhacks:npm
 
 npm-container
 mrt:jquery-masonry
-ian:accounts-ui-bootstrap-3
 mizzao:bootstrap-3
 iron:router
 lepozepo:accounting
 joshowens:accounts-entry
 alethes:pages@=1.7.1
+mrt:accounts-ui-bootstrap-3-blaze
