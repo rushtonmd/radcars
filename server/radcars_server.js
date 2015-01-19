@@ -21,7 +21,11 @@ Meteor.methods({
 	setCurationValue: function(options) {
 		if (!options._id || !options.curation) return;
 		//console.log("Updating " + options._id + " to " + options.curation);
-		Cars.update(options._id, {$set: {curation: options.curation}});
+		Cars.update(options._id, {
+			$set: {
+				curation: options.curation
+			}
+		});
 		//console.log(x);
 		//console.log("Filtering by: " + options.searchText);
 		//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
@@ -36,7 +40,7 @@ var flushAllData = function flushAllData() {
 };
 
 var populateCars = function populateCars(tier, source) {
-	//console.log("Getting car data for tier " + tier + "and source " + source);
+	console.log("Getting car data for tier " + tier + "and source " + source);
 
 	var searches = Searches.find({});
 	var searchCounter = 1;
@@ -46,8 +50,11 @@ var populateCars = function populateCars(tier, source) {
 		//apiData.params.tier = 0;
 
 		var apiData = apiDataFactory(search.headingSearchText, tier, source);
-		
-		console.log("Searching for: " + apiData.params.heading);
+
+		var lastupdated = new Date();
+
+
+		console.log("Searching for: " + apiData.params.heading + " in " + searchCounter);
 
 		Meteor.setTimeout(function() {
 			Meteor.http.get(apiData.url, apiData, function(err, res) {
@@ -73,7 +80,7 @@ var populateCars = function populateCars(tier, source) {
 							price: post.price,
 							source: post.source,
 							timestamp: post.timestamp,
-							lastupdated: new Date()
+							lastupdated: lastupdated
 						}
 					});
 					//console.log(newCar);
@@ -81,7 +88,7 @@ var populateCars = function populateCars(tier, source) {
 				});
 
 			});
-		}, (searchCounter++) * 5000);
+		}, (searchCounter++) * 5000); // Make a new api call every 5 seconds
 
 	});
 };
@@ -121,6 +128,45 @@ var fetchImage = function fetchImage(postID) {
 
 };
 
+var pruneCars = function pruneCars() {
+
+	var expiresDate = new Date();
+	expiresDate.setDate(expiresDate.getDate() - 1);
+	//expiresDate.setSeconds(expiresDate.getSeconds() - 30);
+
+	//var carsToDelete = Cars.find({lastupdated: {$lt : expiresDate}});
+
+	//console.log("Cars to delete: " + carsToDelete.count() + " of " + Cars.find().count() + " at " + expiresDate.toLocaleTimeString());
+
+	var deletedCars = Cars.remove({lastupdated: {$lt : expiresDate}});
+
+	// console.log("Cars left: " + Cars.find().count());
+
+	Meteor.setTimeout(pruneImages, 1000);
+};
+
+var pruneImages = function pruneImages(){
+
+	// Get all the used images from the Cars collection
+	var usedImagesSearch = Cars.find({},{fields: {imageID: 1, _id: 0}}).fetch();
+	var usedImages = [];
+
+	usedImagesSearch.forEach(function(car){
+		if (car.imageID) usedImages.push(car.imageID);
+	});
+
+	// console.log("Pruning Images");
+
+
+	// var imagesToDelete = Images.find({_id: {$nin : usedImages}});
+
+	// console.log(imagesToDelete.count());
+
+	Images.remove({_id: {$nin : usedImages}});
+
+
+};
+
 var apiDataFactory = function apiDataFactory(heading, tier, source) {
 
 	var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images";
@@ -156,14 +202,19 @@ Meteor.startup(function() {
 			//defaultProfile: someDefault: 'default'
 	});
 
-	// Update tier 0 every minute
+	// Update tier 0 every 15 minutes
 	var populateTier0Interval = Meteor.setInterval(function() {
 		populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM")
-	}, 300000);
+	}, 900000);
 
-	// Update tier 1 every 15 minutes
+	// Update tier 1 every hour
 	var populateTier1Interval = Meteor.setInterval(function() {
 		populateCars(1, "CRAIG|AUTOC|AUTOD|EBAYM")
-	}, 900000);
+	}, 3600000);
+
+	// Prune old cars every 3 hours
+	var pruneCarsInterval = Meteor.setInterval(function() {
+		pruneCars();
+	}, 10800000);
 
 });

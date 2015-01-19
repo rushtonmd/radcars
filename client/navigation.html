@@ -1,41 +1,42 @@
 <template name="navigationBar">
-	<nav class="navbar navbar-default navbar-fixed-top car-nav" role="navigation">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand admin-header-item" href="/"><span class="glyphicon glyphicon-road" aria-hidden="true"></span>  TireKick (Bay Area)</a>
-				<!--
-				<div class="navbar-form navbar-left" role="search">
+<nav class="navbar navbar-default navbar-fixed-top car-nav" role="navigation">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand admin-header-item" href="/"><span class="glyphicon glyphicon-road" aria-hidden="true"></span>  TireKick (Bay Area)</a>
+			<!--
+			<div class="navbar-form navbar-left" role="search">
 											<div class="form-group">
-												<input type="text" class="form-control filter-cars-text" placeholder="Search">
+													<input type="text" class="form-control filter-cars-text" placeholder="Search">
 											</div>
 											<button class="btn btn-default filter-cars">Submit</button>
-				</div> -->
-				<!-- <a class="navbar-brand admin-header-item" href="/trash">Trash</a> -->
-				<!--<a class="navbar-brand admin-header-item sign-out-header" href="/sign-out">Sign-Out</a>-->
-			</div>
-			<!--
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav">
-									<li class="{{ activeIfTemplateIs 'car' }}"><a href="/curation">Curation</a></li>
-									<li class="{{ activeIfTemplateIs 'search' }}"><a href="/searches">Searches</a></li>
-							</ul>
-			</div>-->
-			<div class="navbar-collapse collapse" role="search"  id="bs-example-navbar-collapse-1">
-				<div class="navbar-form navbar-right" role="search">
-					<div class="input-group">
+			</div> -->
+			<!-- <a class="navbar-brand admin-header-item" href="/trash">Trash</a> -->
+			<!--<a class="navbar-brand admin-header-item sign-out-header" href="/sign-out">Sign-Out</a>-->
+		</div>
+		
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			{{#if isUserAnAdmin}}
+			<ul class="nav navbar-nav">
+				<li class="{{ activeIfTemplateIs 'carCuration' }}"><a href="/admin/curation">Curation</a></li>
+				<li class="{{ activeIfTemplateIs 'search' }}"><a href="/admin/searches">Searches</a></li>
+				<li><a href="/sign-out"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Sign-Out</a></li>
+			</ul>
+			{{/if}}
+			<div class="navbar-form navbar-right" role="search">
+				<div class="input-group">
 					<input type="text" class="form-control filter-cars-text" placeholder="Search">
 					<span class="input-group-btn">
-        <button class="btn btn-default clear-search-button" type="button">X</button>
-      </span></div>
-				</div>
+					<button class="btn btn-default clear-search-button" type="button">X</button>
+				</span></div>
 			</div>
-			
 		</div>
-	</nav>
+		
+	</div>
+</nav>
 </template>

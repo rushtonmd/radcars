@@ -26,6 +26,9 @@ Template.navigationBar.helpers({
 		//console.log(currentRoute.lookupTemplate());
 		return currentRoute &&
 			template === currentRoute.lookupTemplate() ? 'active' : '';
+	},
+	isUserAnAdmin: function(){
+		return Meteor.userId();
 	}
 });
 
@@ -100,7 +103,9 @@ Template.car.events({
 Template.cars.rendered = function() {
 	if (!this._rendered) {
 		//Meteor.call('repopulateCars');
-		//console.log("REPOPULATING!");
+		console.log("REPOPULATING!");
+		var inputBox = $("input.filter-cars-text");
+		var text = inputBox.val("");
 		this._rendered = true;
 	}
 };
