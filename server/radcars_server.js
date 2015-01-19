@@ -212,7 +212,7 @@ Meteor.startup(function() {
 		populateCars(1, "CRAIG|AUTOC|AUTOD|EBAYM")
 	}, 3600000);
 
-	// Prune old cars every 3 hours
+	// Prune old cars and images every 3 hours
 	var pruneCarsInterval = Meteor.setInterval(function() {
 		pruneCars();
 	}, 10800000);
