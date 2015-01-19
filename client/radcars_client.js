@@ -29,6 +29,12 @@ Template.navigationBar.helpers({
 	},
 	isUserAnAdmin: function(){
 		return Meteor.userId();
+	},
+	totalCarsInDB: function(){
+		Meteor.call('totalCarsInDB', function(err, data){
+			if (!err) Session.set('totalCarsInDB', data);
+		});
+		return Session.get('totalCarsInDB');
 	}
 });
 
@@ -57,7 +63,8 @@ Template.body.events({
 				filters: {
 					headingSearchable: {
 						$regex: text
-					}
+					},
+					curation: {$ne: "LAME"}
 				}
 			});
 
@@ -70,7 +77,8 @@ Template.body.events({
 				filters: {
 					headingSearchable: {
 						$regex: ""
-					}
+					},
+					curation: {$ne: "LAME"}
 				}
 			});
 		}
@@ -122,7 +130,7 @@ Template.carCurationItem.rendered = function() {
 
 Template.carCurationItem.events({
 	"click button.toggle-curation-lame": function(event) {
-		var newValue = (this.curation === "LAME") ? "a" : "LAME";
+		var newValue = (this.curation === "LAME") ? "" : "LAME";
 		Meteor.call('setCurationValue', {_id: this._id, curation: newValue});
 	}
 });
