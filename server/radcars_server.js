@@ -19,7 +19,7 @@ Meteor.methods({
 		//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
 	},
 	setCurationValue: function(options) {
-		if (!options._id || !options.curation) return;
+		if (!options._id) return;
 		//console.log("Updating " + options._id + " to " + options.curation);
 		Cars.update(options._id, {
 			$set: {
