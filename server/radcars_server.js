@@ -86,7 +86,7 @@ var populateCars = function populateCars(tier, source) {
 							lastupdated: lastupdated
 						}
 					});
-					//console.log(newCar);
+					//console.log("CAR");
 					fetchImage(newCar.insertedId);
 				});
 

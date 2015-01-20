@@ -161,7 +161,7 @@ Template.carCurationItem.helpers({
 		//Images.insert(file, function(){console.log(arguments);});
 		//console.log("HEY!" + this.imageID);
 		var img = Images.findOne(this.imageID);
-		return img && img.url() || "/noimage.jpg";
+		return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
 	},
 	lameCar: function(){
 		return this.curation === "LAME";
