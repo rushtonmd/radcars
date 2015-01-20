@@ -2,8 +2,10 @@ Meteor.publish('images', function() {
 	return Images.find();
 });
 
-Meteor.publish("totalImagesInDB", function() {
-	return Images.find().count();
+Meteor.publish('publication', function() {
+  Counts.publish(this, 'images-counter', Images.find());
+  Counts.publish(this, 'cars-counter', Cars.find());
+  Counts.publish(this, 'cool-cars-counter', Cars.find({curation: {$ne: "LAME"}}));
 });
 
 Meteor.methods({
@@ -33,9 +35,6 @@ Meteor.methods({
 		//console.log(x);
 		//console.log("Filtering by: " + options.searchText);
 		//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
-	},
-	totalCarsInDB: function() {
-		return Cars.find().count();
 	}
 });
 

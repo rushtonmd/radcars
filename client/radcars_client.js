@@ -1,4 +1,5 @@
 Meteor.subscribe('images');
+Meteor.subscribe('publication');
 
 Handlebars.registerHelper("prettifyDate", function(timestamp) {
 	return new Date(timestamp * 1000).toLocaleString();
@@ -30,11 +31,11 @@ Template.navigationBar.helpers({
 	isUserAnAdmin: function(){
 		return Meteor.userId();
 	},
-	totalCarsInDB: function(){
-		Meteor.call('totalCarsInDB', function(err, data){
-			if (!err) Session.set('totalCarsInDB', data);
-		});
-		return Session.get('totalCarsInDB');
+	imagesCount: function(){
+		return Counts.get('images-counter');
+	},
+	carsCount: function(){
+		return Counts.get('cars-counter');
 	}
 });
 
@@ -49,6 +50,7 @@ Template.body.helpers({
 	cars: function() {
 		//return Cars.find({});
 	}
+
 });
 
 Template.body.events({
@@ -134,10 +136,25 @@ Template.cars.rendered = function() {
 	}
 };
 
+Template.cars.helpers({
+	moreCoolCars: function(){
+		console.log(Counts.get('cool-cars-counter') + " : " + Cars.find({curation: {$ne: "LAME"}}).count());
+		return Counts.get('cool-cars-counter') > Cars.find({curation: {$ne: "LAME"}}).count();
+	}
+});
+
 Template.car.rendered = function() {
 	//console.log("here!");
 	this.$("div.thumbnail").fadeIn(1000);
 };
+
+Template.carCuration.helpers({
+	moreCoolCars: function(){
+		console.log(Counts.get('cool-cars-counter') + " : " + Cars.find().count());
+		return Counts.get('cool-cars-counter') > Cars.find().count();
+	}
+});
+
 
 Template.carCurationItem.rendered = function() {
 	//console.log("here!");

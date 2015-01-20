@@ -1,29 +1,36 @@
 <template name="carCuration">
-	<div class="container cars">
-		<div class="row">
-			
-			{{> pagesNav}}
-			{{> pages}}
+<div class="container cars">
+	<div class="row">
+		
+		{{> pagesNav}}
+		{{> pages}}
+	</div>
+	{{#if moreCoolCars}}
+	<div class="row loadingMoreCars">
+		<div class="pagesLoadingDefaultCont">
+			<div class="pagesLoadingDefault"><img src="/packages/alethes_pages/public/loader.gif"/></div>
 		</div>
 	</div>
+	{{/if}}
+</div>
 </template>
 <template name="carCurationItem">
-	<div id="car-container" class="col-sm-6 col-md-4 {{#if lameCar}}lame-car{{/if}}">
-		<button class="btn btn-{{#if lameCar}}danger{{else}}default{{/if}} toggle-curation-lame" type="button">{{#if lameCar}}UN-{{/if}}LAME IT!</button>
-		<a href="{{external_url}}" target="_blank">
-			<div class="thumbnail {{#if lameCar}}lame-car{{/if}}">
+<div id="car-container" class="col-sm-6 col-md-4 {{#if lameCar}}lame-car{{/if}}">
+	<button class="btn btn-{{#if lameCar}}danger{{else}}default{{/if}} toggle-curation-lame" type="button">{{#if lameCar}}UN-{{/if}}LAME IT!</button>
+	<a href="{{external_url}}" target="_blank">
+		<div class="thumbnail {{#if lameCar}}lame-car{{/if}}">
 			
+			
+			<div class="carimage" style="background-image:url({{image}})" alt="...">
 				
-				<div class="carimage" style="background-image:url({{image}})" alt="...">
-					
-					<div class="price caption"><span>{{prettifyMoney price}} in {{cityname}}</span></div>
-					<div class="caption heading">
-						<span>{{heading}}</span>
-					</div>
+				<div class="price caption"><span>{{prettifyMoney price}} in {{cityname}}</span></div>
+				<div class="caption heading">
+					<span>{{heading}}</span>
 				</div>
-				
-				
 			</div>
-		</a>
-	</div>
+			
+			
+		</div>
+	</a>
+</div>
 </template>
