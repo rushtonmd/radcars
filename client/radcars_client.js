@@ -138,7 +138,7 @@ Template.cars.rendered = function() {
 
 Template.cars.helpers({
 	moreCoolCars: function(){
-		console.log(Counts.get('cool-cars-counter') + " : " + Cars.find({curation: {$ne: "LAME"}}).count());
+		//console.log(Counts.get('cool-cars-counter') + " : " + Cars.find({curation: {$ne: "LAME"}}).count());
 		return Counts.get('cool-cars-counter') > Cars.find({curation: {$ne: "LAME"}}).count();
 	}
 });
@@ -150,7 +150,7 @@ Template.car.rendered = function() {
 
 Template.carCuration.helpers({
 	moreCoolCars: function(){
-		console.log(Counts.get('cool-cars-counter') + " : " + Cars.find().count());
+		//console.log(Counts.get('cool-cars-counter') + " : " + Cars.find().count());
 		return Counts.get('cool-cars-counter') > Cars.find().count();
 	}
 });
