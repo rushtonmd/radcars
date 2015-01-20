@@ -2,6 +2,10 @@ Meteor.publish('images', function() {
 	return Images.find();
 });
 
+Meteor.publish("totalImagesInDB", function() {
+	return Images.find().count();
+});
+
 Meteor.methods({
 	repopulateCars: function() {
 		populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM");
@@ -30,7 +34,7 @@ Meteor.methods({
 		//console.log("Filtering by: " + options.searchText);
 		//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
 	},
-	totalCarsInDB: function(){
+	totalCarsInDB: function() {
 		return Cars.find().count();
 	}
 });
@@ -141,20 +145,29 @@ var pruneCars = function pruneCars() {
 
 	//console.log("Cars to delete: " + carsToDelete.count() + " of " + Cars.find().count() + " at " + expiresDate.toLocaleTimeString());
 
-	var deletedCars = Cars.remove({lastupdated: {$lt : expiresDate}});
+	var deletedCars = Cars.remove({
+		lastupdated: {
+			$lt: expiresDate
+		}
+	});
 
 	// console.log("Cars left: " + Cars.find().count());
 
 	Meteor.setTimeout(pruneImages, 1000);
 };
 
-var pruneImages = function pruneImages(){
+var pruneImages = function pruneImages() {
 
 	// Get all the used images from the Cars collection
-	var usedImagesSearch = Cars.find({},{fields: {imageID: 1, _id: 0}}).fetch();
+	var usedImagesSearch = Cars.find({}, {
+		fields: {
+			imageID: 1,
+			_id: 0
+		}
+	}).fetch();
 	var usedImages = [];
 
-	usedImagesSearch.forEach(function(car){
+	usedImagesSearch.forEach(function(car) {
 		if (car.imageID) usedImages.push(car.imageID);
 	});
 
@@ -165,7 +178,11 @@ var pruneImages = function pruneImages(){
 
 	// console.log(imagesToDelete.count());
 
-	Images.remove({_id: {$nin : usedImages}});
+	Images.remove({
+		_id: {
+			$nin: usedImages
+		}
+	});
 
 
 };

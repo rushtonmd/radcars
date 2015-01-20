@@ -9,7 +9,7 @@
 </template>
 <template name="carCurationItem">
 	<div id="car-container" class="col-sm-6 col-md-4 {{#if lameCar}}lame-car{{/if}}">
-		<button class="btn btn-danger toggle-curation-lame" type="button">{{#if lameCar}}UN-{{/if}}LAME IT!</button>
+		<button class="btn btn-{{#if lameCar}}danger{{else}}default{{/if}} toggle-curation-lame" type="button">{{#if lameCar}}UN-{{/if}}LAME IT!</button>
 		<a href="{{external_url}}" target="_blank">
 			<div class="thumbnail {{#if lameCar}}lame-car{{/if}}">
 			
