@@ -3,7 +3,6 @@ Meteor.subscribe('publication');
 
 Handlebars.registerHelper("prettifyDate", function(timestamp) {
 	return new Date(timestamp * 1000).toLocaleString();
-	return new Date(timestamp * 1000).toString('yyyy-MM-dd')
 });
 
 Handlebars.registerHelper("prettifyMoney", function(money) {
@@ -28,13 +27,13 @@ Template.navigationBar.helpers({
 		return currentRoute &&
 			template === currentRoute.lookupTemplate() ? 'active' : '';
 	},
-	isUserAnAdmin: function(){
+	isUserAnAdmin: function() {
 		return Meteor.userId();
 	},
-	imagesCount: function(){
+	imagesCount: function() {
 		return Counts.get('images-counter');
 	},
-	carsCount: function(){
+	carsCount: function() {
 		return Counts.get('cars-counter');
 	}
 });
@@ -46,63 +45,57 @@ Template.body.rendered = function() {
 	}
 };
 
-Template.body.helpers({
-	cars: function() {
-		//return Cars.find({});
-	}
+Template.body.helpers({});
 
-});
+var setFiltersOnCars = function setFiltersOnCars(filterText) {
+	CarPages.set({
+		filters: {
+			headingSearchable: {
+				$regex: filterText
+			},
+			curation: {
+				$ne: "LAME"
+			}
+		},
+		sort: {
+			timestamp: -1
+		}
+	});
+};
+
+var setFiltersOnCarCuration = function setFiltersOnCars(filterText) {
+	CarCurationPages.set({
+		filters: {
+			headingSearchable: {
+				$regex: filterText
+			}
+		},
+		sort: {
+			timestamp: -1
+		}
+	});
+};
 
 Template.body.events({
 		'click button.refresh-data': function() {
-			console.log("REPOPULATING!");
+			//console.log("REPOPULATING!");
 			Meteor.call('repopulateCars');
 		},
 		'keyup input.filter-cars-text': function() {
 			var inputBox = $("input.filter-cars-text");
 			var text = inputBox.val().toLowerCase();
-			CarPages.set({
-				filters: {
-					headingSearchable: {
-						$regex: text
-					},
-					curation: {$ne: "LAME"}
-				}
-			});
-
-			CarCurationPages.set({
-				filters: {
-					headingSearchable: {
-						$regex: text
-					}
-				}
-			});
-
-			//Meteor.call('filterCars', {searchText: text});
+			setFiltersOnCars(text);
+			setFiltersOnCarCuration(text);
 		},
 		'click button.clear-search-button': function() {
 			var inputBox = $("input.filter-cars-text");
 			var text = inputBox.val("");
-			CarPages.set({
-				filters: {
-					headingSearchable: {
-						$regex: ""
-					},
-					curation: {$ne: "LAME"}
-				}
-			});
-
-			CarCurationPages.set({
-				filters: {
-					headingSearchable: {
-						$regex: ""
-					}
-				}
-			});
+			setFiltersOnCars("");
+			setFiltersOnCarCuration("");
 		}
 	})
 	// counter starts at 0
-Session.setDefault("counter", 0);
+	//Session.setDefault("counter", 0);
 
 Template.car.helpers({
 	// counter: function() {
@@ -115,31 +108,32 @@ Template.car.helpers({
 		//Images.insert(file, function(){console.log(arguments);});
 		//console.log("HEY!" + this.imageID);
 		var img = Images.findOne(this.imageID);
-		return img && img.url() || "/noimage.jpg";
+		return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
 	}
 });
 
 Template.car.events({
-	'click button': function() {
-		// increment the counter when button is clicked
-		//Session.set("counter", Session.get("counter") + 1);
-	}
 });
 
 Template.cars.rendered = function() {
 	if (!this._rendered) {
 		//Meteor.call('repopulateCars');
-		console.log("REPOPULATING!");
+		//console.log("REPOPULATING!");
 		var inputBox = $("input.filter-cars-text");
 		var text = inputBox.val("");
+		setFiltersOnCars("");
 		this._rendered = true;
 	}
 };
 
 Template.cars.helpers({
-	moreCoolCars: function(){
+	moreCoolCars: function() {
 		//console.log(Counts.get('cool-cars-counter') + " : " + Cars.find({curation: {$ne: "LAME"}}).count());
-		return Counts.get('cool-cars-counter') > Cars.find({curation: {$ne: "LAME"}}).count();
+		return Counts.get('cool-cars-counter') > Cars.find({
+			curation: {
+				$ne: "LAME"
+			}
+		}).count();
 	}
 });
 
@@ -149,11 +143,22 @@ Template.car.rendered = function() {
 };
 
 Template.carCuration.helpers({
-	moreCoolCars: function(){
+	moreCoolCars: function() {
 		//console.log(Counts.get('cool-cars-counter') + " : " + Cars.find().count());
 		return Counts.get('cool-cars-counter') > Cars.find().count();
 	}
 });
+
+Template.carCuration.rendered = function() {
+	if (!this._rendered) {
+		//Meteor.call('repopulateCars');
+		//console.log("REPOPULATING!");
+		var inputBox = $("input.filter-cars-text");
+		var text = inputBox.val("");
+		setFiltersOnCarCuration("");
+		this._rendered = true;
+	}
+};
 
 
 Template.carCurationItem.rendered = function() {
@@ -166,7 +171,10 @@ Template.carCurationItem.events({
 		console.log(this.curation);
 		var newValue = (this.curation === "LAME") ? "" : "LAME";
 		console.log(this.curation + " : " + newValue);
-		Meteor.call('setCurationValue', {_id: this._id, curation: newValue});
+		Meteor.call('setCurationValue', {
+			_id: this._id,
+			curation: newValue
+		});
 	}
 });
 
@@ -180,7 +188,7 @@ Template.carCurationItem.helpers({
 		var img = Images.findOne(this.imageID);
 		return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
 	},
-	lameCar: function(){
+	lameCar: function() {
 		return this.curation === "LAME";
 	}
 });

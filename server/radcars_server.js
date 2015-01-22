@@ -70,6 +70,8 @@ var populateCars = function populateCars(tier, source) {
 				_.each(postings, function(post) {
 					//console.log("POST: " + post.heading)
 					//var newCar = Cars.insert(post);
+					var imageUrl = post.images && post.images[0] && post.images[0].full || post.images[0].thumb;
+					//console.log(imageList);
 					var newCar = Cars.upsert({
 						external_id: post.external_id
 					}, {
@@ -80,7 +82,8 @@ var populateCars = function populateCars(tier, source) {
 							heading: post.heading,
 							headingSearchable: post.heading.toLowerCase(),
 							id: post.id,
-							images: post.images,
+							//images: post.images,
+							//images: imageList,
 							//location: post.location,
 							cityname: CityName(post.location.city),
 							price: post.price,
@@ -90,7 +93,7 @@ var populateCars = function populateCars(tier, source) {
 						}
 					});
 					//console.log("CAR");
-					fetchImage(newCar.insertedId);
+					fetchImage(newCar.insertedId, imageUrl);
 				});
 
 			});
@@ -99,14 +102,12 @@ var populateCars = function populateCars(tier, source) {
 	});
 };
 
-var fetchImage = function fetchImage(postID) {
-	if (!postID) return;
+var fetchImage = function fetchImage(postID, imgUrl) {
+
+	if (!postID || !imgUrl || imgUrl.length <= 0) return;
+	
 	var request = Meteor.npmRequire('request');
 	var carObj = Cars.findOne(postID);
-	//console.log(carObj.heading + " : " + carObj.images[0].full);
-	if (!carObj || !carObj.images || carObj.images.length <= 0) return;
-
-	var imgUrl = carObj.images[0].full || carObj.images[0].thumb;
 
 	request.get({
 		url: imgUrl,
