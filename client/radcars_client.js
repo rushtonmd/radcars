@@ -45,8 +45,6 @@ Template.body.rendered = function() {
 	}
 };
 
-Template.body.helpers({});
-
 var setFiltersOnCars = function setFiltersOnCars(filterText) {
 	CarPages.set({
 		filters: {
@@ -168,9 +166,7 @@ Template.carCurationItem.rendered = function() {
 
 Template.carCurationItem.events({
 	"click button.toggle-curation-lame": function(event) {
-		console.log(this.curation);
 		var newValue = (this.curation === "LAME") ? "" : "LAME";
-		console.log(this.curation + " : " + newValue);
 		Meteor.call('setCurationValue', {
 			_id: this._id,
 			curation: newValue
@@ -216,7 +212,6 @@ Template.searches.events({
 		return false;
 	},
 	'click button.refresh-data': function() {
-		console.log("REPOPULATING!");
 		Meteor.call('blowAwayData');
 	}
 });

@@ -105,7 +105,7 @@ var populateCars = function populateCars(tier, source) {
 var fetchImage = function fetchImage(postID, imgUrl) {
 
 	if (!postID || !imgUrl || imgUrl.length <= 0) return;
-	
+
 	var request = Meteor.npmRequire('request');
 	var carObj = Cars.findOne(postID);
 
