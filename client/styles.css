@@ -126,6 +126,18 @@ div.thumbnail {
   display: none;
 }
 
+div.jumbotron.four-oh-four p {
+  text-align: center;
+}
+
+div.jumbotron.four-oh-four,
+div.jumbotron.car-ad-template {
+  margin-top: 60px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.88);
+}
+
+div.car-ad-template .carimage,
 div.thumbnail .carimage {
   background-size: cover;
   background-repeat: no-repeat;
@@ -163,6 +175,7 @@ div.loadingMoreCars div.pagesLoadingDefaultCont {
 
 div.caption.heading  {
   padding: 9px;
+  padding-right: 16px;
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -189,4 +202,39 @@ div.caption span {
 	width: 100%; 
 	margin-top: 1rem;
 	overflow: hidden; 
+}
+
+a.twitter-share-button {
+  background-color: rgb(85, 172, 238);
+  color: white;
+  font-size: 20px;
+}
+
+button.share-ad {
+  position: absolute;
+  z-index: 1;
+  background-color: transparent;
+  border: transparent;
+  font-size: 31px;
+  bottom: 22px;
+  right: 20px;
+  color: rgba(0, 0, 0, 0.87);
+  padding: 0px;
+}
+
+button.share-ad:hover {
+  background-color: transparent;
+  border: transparent;
+
+}
+
+.modal-header input.direct-ad-link {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.share-row {
+  text-align: center;
+  font-size: 16px;
+  padding-top: 10px;
 }

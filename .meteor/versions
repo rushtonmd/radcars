@@ -34,6 +34,7 @@ ejson@1.0.5
 email@1.0.5
 fastclick@1.0.2
 follower-livedata@1.0.3
+gadicohen:phantomjs@0.0.2
 geojson-utils@1.0.2
 handlebars@1.0.2
 html-tools@1.0.3
@@ -59,6 +60,7 @@ less@1.0.12
 livedata@1.0.12
 localstorage@1.0.2
 logging@1.0.6
+manuelschoebel:ms-seo@0.4.1
 meteor@1.1.4
 meteor-platform@1.2.1
 meteorhacks:async@1.0.0
@@ -72,6 +74,7 @@ mongo-livedata@1.0.7
 mrt:accounts-ui-bootstrap-3-blaze@0.3.10
 mrt:jquery-masonry@0.1.0
 mrt:underscore-string-latest@2.3.3
+natestrauser:font-awesome@4.2.0_1
 npm-bcrypt@0.7.7
 npm-container@1.0.0
 observe-sequence@1.0.4
@@ -91,6 +94,7 @@ sha@1.0.2
 softwarerero:accounts-t9n@1.0.3
 spacebars@1.0.4
 spacebars-compiler@1.0.4
+spiderable@1.0.6
 srp@1.0.2
 stylus@1.0.6
 templating@1.0.10

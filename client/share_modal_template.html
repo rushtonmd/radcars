@@ -1,0 +1,26 @@
+<template name="shareModal">
+    <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Direct Link:</h4>
+                    <input type="text" class="form-control direct-ad-link" placeholder="" readonly>
+                    <div class="share-row">
+                    	<span>- OR -</span>
+                    </div>
+                    <div class="share-row">
+                    	<a type="button" class="btn btn-default twitter-share-button popup" target="_blank"><i class="fa fa-twitter fa-3"></i>  Share on Twitter</a>
+                	</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary save-changes-to-media">Save changes</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

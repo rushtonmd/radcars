@@ -8,6 +8,13 @@ Meteor.publish('publication', function() {
   Counts.publish(this, 'cool-cars-counter', Cars.find({curation: {$ne: "LAME"}}));
 });
 
+Meteor.publish('singleCarAd', function(url){
+	//console.log("URL: " + url);
+	return Cars.find({
+		short_url: url
+	});
+});
+
 Meteor.methods({
 	repopulateCars: function() {
 		populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM");
@@ -89,7 +96,8 @@ var populateCars = function populateCars(tier, source) {
 							price: post.price,
 							source: post.source,
 							timestamp: post.timestamp,
-							lastupdated: lastupdated
+							lastupdated: lastupdated,
+							short_url: new Date().getTime().toString(36)
 						}
 					});
 					//console.log("CAR");
