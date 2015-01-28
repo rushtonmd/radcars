@@ -137,6 +137,15 @@ div.jumbotron.car-ad-template {
   background-color: rgba(255, 255, 255, 0.88);
 }
 
+div.car-ad-template h3.car-ad-heading {
+  margin-top: 6px;
+}
+
+div.car-ad-template p.car-ad-body{
+  font-size: 18px;
+  color: rgb(68,68,68);
+}
+
 div.car-ad-template .carimage,
 div.thumbnail .carimage {
   background-size: cover;

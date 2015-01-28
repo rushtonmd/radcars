@@ -97,6 +97,9 @@ var populateCars = function populateCars(tier, source) {
 							source: post.source,
 							timestamp: post.timestamp,
 							lastupdated: lastupdated,
+							body: post.body
+						},
+						$setOnInsert: {
 							short_url: new Date().getTime().toString(36)
 						}
 					});
@@ -197,7 +200,7 @@ var pruneImages = function pruneImages() {
 
 var apiDataFactory = function apiDataFactory(heading, tier, source) {
 
-	var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images";
+	var apiRetVals = "id,source,category,location,external_id,external_url,heading,timestamp,price,images,body";
 
 	return {
 		url: "http://search.3taps.com",
@@ -205,14 +208,14 @@ var apiDataFactory = function apiDataFactory(heading, tier, source) {
 		params: {
 			"auth_token": ConfigSettings("cars_authtoken"),
 			"retvals": apiRetVals,
-			"rpp": "50",
+			"rpp": "25",
 			"lat": "37.7833",
 			"long": "122.4167",
 			//"radius":"250mi",
 			"source": source,
 			//"sort":"distance",
-			"location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
-			//"location.state":"USA-CA",
+			//"location.region": "USA-SFO-EAS|USA-SFO-NOR|USA-SFO-PEN|USA-SFO-SAF|USA-SFO-SOU",
+			"location.state":"USA-CA|USA-OR|USA-WA",
 			//"location.county": "USA-CA-SAF|USA-CA-STL|USA-OR-WAH",
 			"category": 'VAUT',
 			"status": "for_sale",
@@ -236,9 +239,10 @@ Meteor.startup(function() {
 	}, 900000);
 
 	// Update tier 1 every hour
-	var populateTier1Interval = Meteor.setInterval(function() {
-		populateCars(1, "CRAIG|AUTOC|AUTOD|EBAYM")
-	}, 3600000);
+	// REMOVED THIS SEARCH FOR NOW, TOO MANY OLD RESULTS
+	// var populateTier1Interval = Meteor.setInterval(function() {
+	// 	populateCars(1, "CRAIG|AUTOC|AUTOD|EBAYM")
+	// }, 3600000);
 
 	// Prune old cars and images every 3 hours
 	var pruneCarsInterval = Meteor.setInterval(function() {

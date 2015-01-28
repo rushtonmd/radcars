@@ -10,6 +10,11 @@ Handlebars.registerHelper("prettifyMoney", function(money) {
 	return accounting.formatMoney(money);
 });
 
+Handlebars.registerHelper("shortifyBody", function(body) {
+	if (body.length > 500) return body.substring(0,500) + "...";
+	return body;
+});
+
 Handlebars.registerHelper("longifySource", function(source) {
 
 	if (source === "AUTOD") return "AutoTrader";
@@ -358,7 +363,7 @@ Meteor.startup(function() {
 	SEO.config({
 		title: 'TireKick.us',
 		meta: {
-			'description': 'TireKick - Rad cars for sale in the bay area.'
+			'description': 'TireKick - Rad cars for sale on the west coast.'
 		},
 		og: {
 			'image': 'http://tirekick.us/bgimage.jpg'
