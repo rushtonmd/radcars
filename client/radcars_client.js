@@ -369,7 +369,7 @@ Meteor.startup(function() {
 			'image': 'http://tirekick.us/bgimage.jpg'
 		},
 		auto: {
-			twitter: false,
+			twitter: true,
 			og: true,
 			set: ['description', 'url', 'title']
 		}
