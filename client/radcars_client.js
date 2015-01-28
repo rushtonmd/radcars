@@ -368,6 +368,9 @@ Meteor.startup(function() {
 		og: {
 			'image': 'http://tirekick.us/bgimage.jpg'
 		},
+		twitter: {
+			'image': 'http://tirekick.us/bgimage.jpg'
+		},
 		auto: {
 			twitter: true,
 			og: true,
