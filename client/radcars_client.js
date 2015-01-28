@@ -11,7 +11,7 @@ Handlebars.registerHelper("prettifyMoney", function(money) {
 });
 
 Handlebars.registerHelper("shortifyBody", function(body) {
-	if (body.length > 500) return body.substring(0,500) + "...";
+	if (body.length > 500) return body.substring(0, 500) + "...";
 	return body;
 });
 
@@ -367,7 +367,13 @@ Meteor.startup(function() {
 		},
 		og: {
 			'image': 'http://tirekick.us/bgimage.jpg'
+		},
+		auto: {
+			twitter: false,
+			og: true,
+			set: ['description', 'url', 'title']
 		}
+
 	});
 
 	AccountsEntry.config({
