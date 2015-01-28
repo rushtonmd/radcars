@@ -224,8 +224,8 @@ button.share-ad {
   z-index: 1;
   background-color: transparent;
   border: transparent;
-  font-size: 31px;
-  bottom: 22px;
+  font-size: 40px;
+  bottom: 2px;
   right: 20px;
   color: rgba(0, 0, 0, 0.87);
   padding: 0px;
@@ -246,4 +246,11 @@ button.share-ad:hover {
   text-align: center;
   font-size: 16px;
   padding-top: 10px;
+}
+
+@media (min-width: 768px) {
+  button.share-ad {
+    font-size: 31px;
+    bottom: 22px;
+  }
 }
