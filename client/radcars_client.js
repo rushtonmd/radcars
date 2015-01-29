@@ -366,10 +366,10 @@ Meteor.startup(function() {
 			'description': 'TireKick - Rad cars for sale on the west coast.'
 		},
 		og: {
-			'image': 'http://tirekick.us/bgimage.jpg'
+			'image': 'http://tirekick.us/cfs/files/images/PmKYzSkKBubD9MgDH/carImage.jpg'
 		},
 		twitter: {
-			'image': 'http://tirekick.us/bgimage.jpg'
+			'image': 'http://tirekick.us/cfs/files/images/PmKYzSkKBubD9MgDH/carImage.jpg'
 		},
 		auto: {
 			twitter: true,
