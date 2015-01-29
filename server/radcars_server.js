@@ -42,6 +42,10 @@ Meteor.methods({
 		//console.log(x);
 		//console.log("Filtering by: " + options.searchText);
 		//CarPages.set({filters: {heading : new RegExp(options.searchText)}});
+	},
+	serveImagesThroughNginx: function(){
+		//console.log(ConfigSettings("serve_images_through_nginx"));
+		return ConfigSettings("serve_images_through_nginx");
 	}
 });
 

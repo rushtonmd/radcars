@@ -213,6 +213,13 @@ div.caption span {
 	overflow: hidden; 
 }
 
+div.loadingCurrentCar {
+  margin-top: 60px;
+}
+div.loadingCurrentCar div.pagesLoadingDefaultCont {
+  position: relative;
+}
+
 a.twitter-share-button {
   background-color: rgb(85, 172, 238);
   color: white;

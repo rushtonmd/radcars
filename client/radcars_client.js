@@ -1,6 +1,14 @@
 Meteor.subscribe('images');
 Meteor.subscribe('publication');
 
+var clientSettings = {};
+var selectImageToServe = function selectImageToServe(imageID) {
+	var img = Images.findOne(imageID);
+	var returnImage = img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
+	if (clientSettings.serveImagesThroughNginx && img.copies.master.key) return "http://tirekick.us/images/" + img.copies.master.key;
+	return returnImage;
+};
+
 
 Handlebars.registerHelper("prettifyDate", function(timestamp) {
 	return new Date(timestamp * 1000).toLocaleString();
@@ -111,10 +119,16 @@ Template.car.helpers({
 		//file.attachData(tsturl, function(error) {console.log("ERR: " + error);});
 		//Images.insert(file, function(){console.log(arguments);});
 		//console.log("HEY!" + this.imageID);
-		var img = Images.findOne(this.imageID);
-		return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
+		return selectImageToServe(this.imageID);
 	}
 });
+
+Template.carAdTemplate.rendered = function() {
+	if (!this._rendered) {
+		//$(".row.loadingCurrentCar").fadeOut();
+		this._rendered = true;
+	}
+}
 
 Template.carAdTemplate.helpers({
 	// counter: function() {
@@ -126,8 +140,10 @@ Template.carAdTemplate.helpers({
 		//file.attachData(tsturl, function(error) {console.log("ERR: " + error);});
 		//Images.insert(file, function(){console.log(arguments);});
 		//console.log("HEY!" + this.imageID);
-		var img = Images.findOne(this.imageID);
-		return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
+		return selectImageToServe(this.imageID);
+	},
+	carAdFound: function(){
+		return this._id;
 	}
 });
 
@@ -313,8 +329,9 @@ Template.carCurationItem.helpers({
 		//file.attachData(tsturl, function(error) {console.log("ERR: " + error);});
 		//Images.insert(file, function(){console.log(arguments);});
 		//console.log("HEY!" + this.imageID);
-		var img = Images.findOne(this.imageID);
-		return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
+		// var img = Images.findOne(this.imageID);
+		// return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
+		return selectImageToServe(this.imageID);
 	},
 	lameCar: function() {
 		return this.curation === "LAME";
@@ -360,16 +377,23 @@ Template.search.events({
 
 Meteor.startup(function() {
 
+	Meteor.call('serveImagesThroughNginx', function(err, data) {
+		if (err) console.log(err);
+
+		clientSettings.serveImagesThroughNginx = data;
+
+	});
+
 	SEO.config({
 		title: 'TireKick.us',
 		meta: {
 			'description': 'TireKick - Rad cars for sale on the west coast.'
 		},
 		og: {
-			'image': 'http://tirekick.us/images/images-k4Y6TFuMXP6X2NhGu-carImage.jpeg'
+			'image': 'http://tirekick.us/bgimage.jpg'
 		},
 		twitter: {
-			'image': 'http://tirekick.us/images/images-k4Y6TFuMXP6X2NhGu-carImage.jpeg'
+			'image': 'http://tirekick.us/bgimage.jpg'
 		},
 		auto: {
 			twitter: true,
