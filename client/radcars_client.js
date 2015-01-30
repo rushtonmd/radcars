@@ -2,11 +2,23 @@ Meteor.subscribe('images');
 Meteor.subscribe('publication');
 
 var clientSettings = {};
+
 var selectImageToServe = function selectImageToServe(imageID) {
+
+	var defaultImage = "/noimage.jpg";
+
+	if (!imageID) return defaultImage;
+
 	var img = Images.findOne(imageID);
-	var returnImage = img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
-	if (clientSettings.serveImagesThroughNginx && img.copies.master.key) return "http://tirekick.us/images/" + img.copies.master.key;
-	return returnImage;
+
+	if (img && img.isUploaded() && img.hasStored("master") && img.url() && img.copies.master.key){
+
+		if (clientSettings.serveImagesThroughNginx) return "http://tirekick.us/images/" + img.copies.master.key;
+
+		return img.url();
+	}
+
+	return defaultImage;
 };
 
 
@@ -194,6 +206,8 @@ Template.car.events({
 
 		var directUrl = (Meteor.absoluteUrl() || "http://tirekick.us/") + "dl/" + selectedCar.short_url;
 		$('input.direct-ad-link').val(directUrl);
+		$('a.direct-ad-link-button').attr("href", directUrl);
+
 		$('#shareModal').modal('show');
 
 		// $("button.save-changes-to-media").attr('media-id', mediaID);
@@ -257,6 +271,9 @@ Template.shareModal.events({
 	'click .direct-ad-link': function() {
 		$('.direct-ad-link').select();
 
+	},
+	'click button.visit-ad-page-button': function(){
+		$('.direct-ad-link').val();
 	}
 });
 

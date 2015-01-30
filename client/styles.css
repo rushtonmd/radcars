@@ -184,7 +184,7 @@ div.loadingMoreCars div.pagesLoadingDefaultCont {
 
 div.caption.heading  {
   padding: 9px;
-  padding-right: 16px;
+  padding-right: 28px;
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -232,16 +232,16 @@ button.share-ad {
   background-color: transparent;
   border: transparent;
   font-size: 40px;
-  bottom: 2px;
+  bottom: 4px;
   right: 20px;
-  color: rgba(0, 0, 0, 0.87);
+  color: rgba(57, 65, 82, 1);
   padding: 0px;
 }
 
+button.share-ad:active, 
 button.share-ad:hover {
   background-color: transparent;
   border: transparent;
-
 }
 
 .modal-header input.direct-ad-link {
@@ -258,7 +258,7 @@ button.share-ad:hover {
 @media (min-width: 768px) {
   button.share-ad {
     font-size: 31px;
-    bottom: 22px;
+    bottom: 26px;
   }
 }
 /*
