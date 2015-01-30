@@ -10,11 +10,18 @@
 				<h3 class="car-ad-heading">{{heading}}</h3>
 				<p class="car-ad-body">{{shortifyBody body}}</p>
 				<p>
-					<a href="{{external_url}}" class="btn btn-info btn-lg" target="_blank" role="button">
-						<span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
-						GO BUY IT
-						<span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
-					</a>
+				<div class="row">
+					<div class="col-sm-6 top-button">
+						<a href="{{external_url}}" class="btn btn-info btn-lg full-width-button" target="_blank" role="button">
+							<span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+							GO BUY IT
+							<span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+						</a>
+					</div>
+					<div class="col-sm-6">
+						<a type="button" class="btn btn-info btn-lg twitter-share-button full-width-button popup" target="_blank" href="{{twitterHref}}"><i class="fa fa-twitter"></i>  Share on Twitter</a>
+					</div>
+				</div>
 				</p>
 			</div>
 		</div>

@@ -11,7 +11,7 @@ var selectImageToServe = function selectImageToServe(imageID) {
 
 	var img = Images.findOne(imageID);
 
-	if (img && img.isUploaded() && img.hasStored("master") && img.url() && img.copies.master.key){
+	if (img && img.isUploaded() && img.hasStored("master") && img.url() && img.copies.master.key) {
 
 		if (clientSettings.serveImagesThroughNginx) return "http://tirekick.us/images/" + img.copies.master.key;
 
@@ -101,25 +101,25 @@ var setFiltersOnCarCuration = function setFiltersOnCars(filterText) {
 };
 
 Template.body.events({
-		'click button.refresh-data': function() {
-			//console.log("REPOPULATING!");
-			Meteor.call('repopulateCars');
-		},
-		'keyup input.filter-cars-text': function() {
-			var inputBox = $("input.filter-cars-text");
-			var text = inputBox.val().toLowerCase();
-			setFiltersOnCars(text);
-			setFiltersOnCarCuration(text);
-		},
-		'click button.clear-search-button': function() {
-			var inputBox = $("input.filter-cars-text");
-			var text = inputBox.val("");
-			setFiltersOnCars("");
-			setFiltersOnCarCuration("");
-		}
-	})
-	// counter starts at 0
-	//Session.setDefault("counter", 0);
+	'click button.refresh-data': function() {
+		//console.log("REPOPULATING!");
+		Meteor.call('repopulateCars');
+	},
+	'keyup input.filter-cars-text': function() {
+		var inputBox = $("input.filter-cars-text");
+		var text = inputBox.val().toLowerCase();
+		setFiltersOnCars(text);
+		setFiltersOnCarCuration(text);
+	},
+	'click button.clear-search-button': function() {
+		var inputBox = $("input.filter-cars-text");
+		var text = inputBox.val("");
+		setFiltersOnCars("");
+		setFiltersOnCarCuration("");
+	}
+});
+// counter starts at 0
+//Session.setDefault("counter", 0);
 
 Template.car.helpers({
 	// counter: function() {
@@ -137,10 +137,34 @@ Template.car.helpers({
 
 Template.carAdTemplate.rendered = function() {
 	if (!this._rendered) {
-		//$(".row.loadingCurrentCar").fadeOut();
+
 		this._rendered = true;
 	}
-}
+};
+
+Template.carAdTemplate.events({
+	'click .popup': function(event) {
+		//console.log("HERE!");
+		//console.log($('a.twitter-share-button').attr("href"));
+		var shareUrl = $('a.twitter-share-button').attr("href").toString();
+		var randomnumber = Math.floor((Math.random() * 100) + 1);
+
+		var width = 575,
+			height = 445,
+			left = ($(window).width() - width) / 2,
+			top = ($(window).height() - height) / 2,
+			url = shareUrl,
+			opts = 'status=1' +
+			',width=' + width +
+			',height=' + height +
+			',top=' + top +
+			',left=' + left;
+
+		window.open(url, 'twitter ' + randomnumber, opts);
+
+		return false;
+	}
+});
 
 Template.carAdTemplate.helpers({
 	// counter: function() {
@@ -154,8 +178,18 @@ Template.carAdTemplate.helpers({
 		//console.log("HEY!" + this.imageID);
 		return selectImageToServe(this.imageID);
 	},
-	carAdFound: function(){
+	carAdFound: function() {
 		return this._id;
+	},
+	twitterHref: function() {
+		var hashtags = encodeURIComponent("tirekickus");
+		var text = encodeURIComponent(this.heading);
+		var via = encodeURIComponent("tirekickus");
+		var twitterShareurl = encodeURIComponent((Meteor.absoluteUrl() || "http://tirekick.us/") + "tw/" + this.short_url);
+		var url = encodeURIComponent(this.external_url);
+		var href = 'https://twitter.com/intent/tweet?hashtags=' + hashtags + "&text=" + text + "&url=" + twitterShareurl + "&via=" + via;
+		//$('a.twitter-share-button').attr("href", href);
+		return href;
 	}
 });
 
@@ -239,7 +273,7 @@ Template.shareModal.helpers({
 			thumbnail: "http://tirekick.us/sm" + carThumb
 
 		};
-		console.log(returnData);
+		//console.log(returnData);
 		return returnData;
 
 	}
@@ -272,7 +306,7 @@ Template.shareModal.events({
 		$('.direct-ad-link').select();
 
 	},
-	'click button.visit-ad-page-button': function(){
+	'click button.visit-ad-page-button': function() {
 		$('.direct-ad-link').val();
 	}
 });

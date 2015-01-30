@@ -18,7 +18,6 @@
 </template>
 <template name="car">
 <div id="car-container" class="col-sm-6 col-md-4">
-	<button class="btn btn-default share-ad fa fa-share-alt" data-togglea="modal" data-targeta="#shareModal" car-ad-id="{{_id}}"></button>
 	<a href="{{external_url}}" target="_blank">
 		<div class="thumbnail">
 			
@@ -34,5 +33,6 @@
 			
 		</div>
 	</a>
+	<button class="btn btn-default share-ad fa fa-share-alt" car-ad-id="{{_id}}"></button>
 </div>
 </template>

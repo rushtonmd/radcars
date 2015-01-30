@@ -9,7 +9,7 @@ html::after {
   -o-background-size: cover;
   background-size: cover;
   content: "";
-  opacity: 0.5;
+  opacity: 0.2;
   top: 0;
   left: 0;
   bottom: 0;
@@ -223,25 +223,34 @@ div.loadingCurrentCar div.pagesLoadingDefaultCont {
 a.twitter-share-button {
   background-color: rgb(85, 172, 238);
   color: white;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 button.share-ad {
   position: absolute;
-  z-index: 1;
   background-color: transparent;
   border: transparent;
-  font-size: 40px;
+  font-size: 31px;
   bottom: 4px;
   right: 20px;
   color: rgba(57, 65, 82, 1);
   padding: 0px;
 }
 
+div.car-ad-template a.full-width-button {
+  width: 100%;
+}
+
+div.car-ad-template div.top-button {
+  padding-bottom: 6px;
+}
+
 button.share-ad:active, 
 button.share-ad:hover {
   background-color: transparent;
   border: transparent;
+  outline:0px !important;
+  -webkit-appearance:none;
 }
 
 .modal-header input.direct-ad-link {
@@ -257,8 +266,10 @@ button.share-ad:hover {
 
 @media (min-width: 768px) {
   button.share-ad {
-    font-size: 31px;
     bottom: 26px;
+  }
+  html::after { 
+    opacity: 0.5; 
   }
 }
 /*
