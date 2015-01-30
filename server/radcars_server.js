@@ -1,5 +1,5 @@
 Meteor.publish('images', function() {
-	return Images.find();
+	return Images.find({}, {"fields": {"_id":1, "copies.master.key": 1}});
 });
 
 Meteor.publish('publication', function() {

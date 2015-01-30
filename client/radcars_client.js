@@ -13,7 +13,7 @@ var selectImageToServe = function selectImageToServe(imageID) {
 
 	var img = Images.findOne(imageID);
 
-	if (img && img.isUploaded() && img.hasStored("master") && img.url() && img.copies.master.key) {
+	if (img && img.hasStored("master") && img.url() && img.copies.master.key) {
 
 		if (clientSettings.serveImagesThroughNginx) return "http://tirekick.us/images/" + img.copies.master.key;
 
@@ -447,8 +447,6 @@ Meteor.startup(function() {
 		if (err) console.log(err);
 
 		clientSettings.serveImagesThroughNginx = data;
-
-		console.log(data);
 
 	});
 
