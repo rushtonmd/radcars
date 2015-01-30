@@ -136,10 +136,10 @@ var fetchImage = function fetchImage(postID, imgUrl) {
 			newFile.name('carImage.jpeg');
 
 			var newImage = Images.insert(newFile);
-
 			Cars.update(carObj._id, {
 				$set: {
-					imageID: newImage._id
+					imageID: newImage._id,
+					imageDirectUrl: "images-" + newImage._id + "-carImage.jpeg"
 				}
 			})
 

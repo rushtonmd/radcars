@@ -1,5 +1,7 @@
 Meteor.subscribe('images');
-Meteor.subscribe('publication');
+
+var countsSubscription;
+
 
 var clientSettings = {};
 
@@ -46,6 +48,10 @@ Handlebars.registerHelper("longifySource", function(source) {
 
 });
 
+Template.navigationBar.created = function(){
+	
+};
+
 Template.navigationBar.helpers({
 	activeIfTemplateIs: function(template) {
 		var currentRoute = Router.current();
@@ -54,6 +60,15 @@ Template.navigationBar.helpers({
 			template === currentRoute.lookupTemplate() ? 'active' : '';
 	},
 	isUserAnAdmin: function() {
+		var usr = Meteor.userId();
+		if (usr){
+			if (countsSubscription) countsSubscription.stop();
+			countsSubscription = Meteor.subscribe('publication');
+		}
+		else
+		{
+			if (countsSubscription) countsSubscription.stop();
+		}
 		return Meteor.userId();
 	},
 	imagesCount: function() {
@@ -432,6 +447,8 @@ Meteor.startup(function() {
 		if (err) console.log(err);
 
 		clientSettings.serveImagesThroughNginx = data;
+
+		console.log(data);
 
 	});
 
