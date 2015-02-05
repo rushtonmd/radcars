@@ -429,10 +429,11 @@ Template.carCurationItem.rendered = function() {
 Template.carCurationItem.events({
 	"click button.toggle-curation-lame": function(event) {
 		var newValue = (this.curation === "LAME") ? "" : "LAME";
-		Meteor.call('setCurationValue', {
-			_id: this._id,
-			curation: newValue
-		});
+		Cars.update(this._id, {$set: {'curation': newValue}});
+		// Meteor.call('setCurationValue', {
+		// 	_id: this._id,
+		// 	curation: newValue
+		// });
 	},
 	"slide.bs.carousel div.carousel": function(event) {
 
@@ -442,8 +443,8 @@ Template.carCurationItem.events({
 		var to = next.index();
 		var direction = event.direction;
 
-		console.log(from + " to " + to + " : " + active.index());
-		console.log(this.selectedImage);
+		//console.log(from + " to " + to + " : " + active.index());
+		//console.log(this.selectedImage);
 
 		Cars.update(this._id, {
 			$set: {
@@ -455,7 +456,7 @@ Template.carCurationItem.events({
 	},
 	'click .curation-share': function(event) {
 
-		console.log("HERE!");
+		//console.log("HERE!");
 
 		var mediaID = $(event.currentTarget).attr('car-ad-id');
 
@@ -508,17 +509,17 @@ Template.carCurationItem.helpers({
 		var defaultItem = $("#carousel-" + this._id).find('.carousel-inner > .item.default-item');
 
 		if (!isEmtpy && activeDefaultItem.index() > 0) {
-			console.log("NEED TO CHANGE!");
+			//console.log("NEED TO CHANGE!");
 			$("#carousel-" + this._id).carousel(this.selectedImage);
 		};
 
 		if (activeDefaultItem.index() < 0 && defaultItem.index() > 0) {
 			// This means that 
-			console.log("REMOVE!");
+			//console.log("REMOVE!");
 			defaultItem.remove();
 		};
 
-		console.log("Active: " + active.index() + " : " + this.selectedImage);
+		//console.log("Active: " + active.index() + " : " + this.selectedImage);
 
 		if (!isEmtpy && active.index() != this.selectedImage) {
 			$("#carousel-" + this._id).carousel(this.selectedImage);
