@@ -1,4 +1,5 @@
 <template name="carCuration">
+	{{>shareModal}}
 <div class="container cars">
 	<div class="row">
 		
@@ -15,22 +16,44 @@
 </div>
 </template>
 <template name="carCurationItem">
-<div id="car-container" class="col-sm-6 col-md-4 {{#if lameCar}}lame-car{{/if}}">
-	<button class="btn btn-{{#if lameCar}}danger{{else}}default{{/if}} toggle-curation-lame" type="button">{{#if lameCar}}UN-{{/if}}LAME IT!</button>
-	<a href="{{external_url}}" target="_blank">
-		<div class="thumbnail {{#if lameCar}}lame-car{{/if}}">
-			
-			
-			<div class="carimage" style="background-image:url({{image}})" alt="...">
-				
-				<div class="price caption"><span>{{prettifyMoney price}} in {{cityname}}</span></div>
-				<div class="caption heading">
-					<span>{{heading}}</span>
-				</div>
+<div class="col-sm-6 col-md-4 {{#if lameCar}}lame-car{{/if}}">
+	<div class="admin-item-background {{#if lameCar}}lame-car{{/if}}">
+		<div class="row">
+			<div class="col-xs-6">
+				<button class="btn curation-btn btn-{{#if lameCar}}danger{{else}}default{{/if}} toggle-curation-lame" type="button">{{#if lameCar}}UN-{{/if}}LAME IT!</button>
 			</div>
-			
-			
+			<div class="col-xs-6">
+			<button class="btn curation-btn btn-default curation-share fa fa-share-alt" car-ad-id="{{_id}}"></button>
+			</div>
 		</div>
-	</a>
+		<div id="carousel-{{this._id}}" class="carousel slide" data-ride="carousel" data-interval="false">
+			<div class="carousel-inner">
+
+				{{#each carouselImageList}}
+				<div class="item">
+					<div class="carousel-carimage" style="background-image:url({{image}})" alt="..."></div>
+				</div>
+				{{/each}}
+				{{#if imageListEmpty}}
+				<div class="item active default-item">
+					<div class="carousel-carimage" style="background-image:url({{image}})" alt="..."></div>
+				</div>
+				{{/if}}
+			</div>
+			<a class="left carousel-control" href="#carousel-{{this._id}}" role="button" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				<span class="sr-only">Previous</span>
+			</a>
+			<a class="right carousel-control" href="#carousel-{{this._id}}" role="button" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</div>
+		<div class="curation-heading-container">
+			<h4>{{heading}}</h4>
+		</div>
+		<div  class="curation-heading-container"><span>{{prettifyMoney price}} in {{cityname}}</span>
+		</div>
+	</div>
 </div>
 </template>

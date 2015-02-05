@@ -25,9 +25,8 @@
 			<ul class="nav navbar-nav">
 				<li class="{{ activeIfTemplateIs 'carCuration' }}"><a href="/admin/curation">Curation</a></li>
 				<li class="{{ activeIfTemplateIs 'searches' }}"><a href="/admin/searches">Searches</a></li>
+				<li class="{{ activeIfTemplateIs 'stats' }}"><a href="/admin/stats">Stats</a></li>
 				<li><a href="/sign-out"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Sign-Out</a></li>
-				<li><p class="navbar-text">Total Cars: {{carsCount}}</p></li>
-				<li><p class="navbar-text">Total Images: {{imagesCount}}</p></li>
 			</ul>
 			{{/if}}
 			<div class="navbar-form navbar-right" role="search">

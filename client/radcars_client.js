@@ -48,8 +48,27 @@ Handlebars.registerHelper("longifySource", function(source) {
 
 });
 
-Template.navigationBar.created = function(){
-	
+Template.statsTemplate.helpers({
+	isUserAnAdmin: function() {
+		var usr = Meteor.userId();
+		if (usr) {
+			if (countsSubscription) countsSubscription.stop();
+			countsSubscription = Meteor.subscribe('publication');
+		} else {
+			if (countsSubscription) countsSubscription.stop();
+		}
+		return Meteor.userId();
+	},
+	imagesCount: function() {
+		return Counts.get('images-counter');
+	},
+	carsCount: function() {
+		return Counts.get('cars-counter');
+	}
+})
+
+Template.navigationBar.created = function() {
+
 };
 
 Template.navigationBar.helpers({
@@ -61,21 +80,13 @@ Template.navigationBar.helpers({
 	},
 	isUserAnAdmin: function() {
 		var usr = Meteor.userId();
-		if (usr){
+		if (usr) {
 			if (countsSubscription) countsSubscription.stop();
 			countsSubscription = Meteor.subscribe('publication');
-		}
-		else
-		{
+		} else {
 			if (countsSubscription) countsSubscription.stop();
 		}
 		return Meteor.userId();
-	},
-	imagesCount: function() {
-		return Counts.get('images-counter');
-	},
-	carsCount: function() {
-		return Counts.get('cars-counter');
 	}
 });
 
@@ -89,9 +100,16 @@ Template.body.rendered = function() {
 var setFiltersOnCars = function setFiltersOnCars(filterText) {
 	CarPages.set({
 		filters: {
-			headingSearchable: {
-				$regex: filterText
-			},
+			$or: [{
+				headingSearchable: {
+					$regex: filterText
+				}
+			}, {
+				body: {
+					$regex: filterText
+				}
+
+			}],
 			curation: {
 				$ne: "LAME"
 			}
@@ -146,7 +164,9 @@ Template.car.helpers({
 		//file.attachData(tsturl, function(error) {console.log("ERR: " + error);});
 		//Images.insert(file, function(){console.log(arguments);});
 		//console.log("HEY!" + this.imageID);
-		return selectImageToServe(this.imageID);
+		var selectedImg = this.imageList[this.selectedImage];
+
+		return selectImageToServe(selectedImg.id);
 	}
 });
 
@@ -190,8 +210,8 @@ Template.carAdTemplate.helpers({
 		//var file = new FS.File(tsturl); // This could be grapped from the url
 		//file.attachData(tsturl, function(error) {console.log("ERR: " + error);});
 		//Images.insert(file, function(){console.log(arguments);});
-		//console.log("HEY!" + this.imageID);
-		return selectImageToServe(this.imageID);
+		var selectedImg = this.imageList[this.selectedImage];
+		return selectImageToServe(selectedImg.id);
 	},
 	carAdFound: function() {
 		return this._id;
@@ -372,9 +392,37 @@ Template.carCuration.rendered = function() {
 	}
 };
 
+Template.carCurationItem.created = function() {
+	//console.log("here!");
+
+};
+
+
 
 Template.carCurationItem.rendered = function() {
-	//console.log("here!");
+
+	if (!this._rendered) {
+		//var cID = "carousel-" + this.data._id;
+		this.$("#carousel-" + this.data._id).carousel();
+		this._rendered = true;
+	}
+
+
+	//console.log(this.$('.carousel-inner').eq(1).addClass('active')) ;
+
+	//this.$('#' + cID + ' .carousel-inner .item:first-child').addClass('active');
+
+	//console.log(this.data);
+	//this.$('.carousel-inner div:first').addClass('active');
+	//this.$(".carousel").carousel();
+	// this.$(".thumbnail-carousel").owlCarousel({
+	// 	navigation: true,
+	// 	items: 1,
+	// 	afterAction: function(){console.log("TEST");}
+	// });
+	// function afterAction() {
+	// 	console.log("alert");
+	// };
 	this.$("div.thumbnail").fadeIn(1000);
 };
 
@@ -385,6 +433,48 @@ Template.carCurationItem.events({
 			_id: this._id,
 			curation: newValue
 		});
+	},
+	"slide.bs.carousel div.carousel": function(event) {
+
+		var active = $(event.target).find('.carousel-inner > .item.active');
+		var from = active.index();
+		var next = $(event.relatedTarget);
+		var to = next.index();
+		var direction = event.direction;
+
+		console.log(from + " to " + to + " : " + active.index());
+		console.log(this.selectedImage);
+
+		Cars.update(this._id, {
+			$set: {
+				selectedImage: to
+			}
+		});
+		// Need to update the current car with the selected image
+
+	},
+	'click .curation-share': function(event) {
+
+		console.log("HERE!");
+
+		var mediaID = $(event.currentTarget).attr('car-ad-id');
+
+		var selectedCar = Cars.findOne(mediaID);
+
+		var hashtags = encodeURIComponent("tirekickus");
+		var text = encodeURIComponent(selectedCar.heading);
+		var via = encodeURIComponent("tirekickus");
+		var twitterShareurl = encodeURIComponent((Meteor.absoluteUrl() || "http://tirekick.us/") + "tw/" + selectedCar.short_url);
+		var url = encodeURIComponent(selectedCar.external_url);
+		var href = 'https://twitter.com/intent/tweet?hashtags=' + hashtags + "&text=" + text + "&url=" + twitterShareurl + "&via=" + via;
+		$('a.twitter-share-button').attr("href", href);
+
+		var directUrl = (Meteor.absoluteUrl() || "http://tirekick.us/") + "dl/" + selectedCar.short_url;
+		$('input.direct-ad-link').val(directUrl);
+		$('a.direct-ad-link-button').attr("href", directUrl);
+
+		$('#shareModal').modal('show');
+
 	}
 });
 
@@ -397,10 +487,44 @@ Template.carCurationItem.helpers({
 		//console.log("HEY!" + this.imageID);
 		// var img = Images.findOne(this.imageID);
 		// return img && img.isUploaded() && img.hasStored("master") && img.url() || "/noimage.jpg";
-		return selectImageToServe(this.imageID);
+
+		//var selectedImg = this.imageList[this.selectedImage];
+
+		return selectImageToServe(this.id);
 	},
 	lameCar: function() {
 		return this.curation === "LAME";
+	},
+	carouselImageList: function() {
+		return this.imageList;
+	},
+	imageListEmpty: function() {
+
+		//select the carousel and move to the selected image
+
+		var isEmtpy = this.imageList.length <= 0;
+		var active = $("#carousel-" + this._id).find('.carousel-inner > .item.active');
+		var activeDefaultItem = $("#carousel-" + this._id).find('.carousel-inner > .item.active.default-item');
+		var defaultItem = $("#carousel-" + this._id).find('.carousel-inner > .item.default-item');
+
+		if (!isEmtpy && activeDefaultItem.index() > 0) {
+			console.log("NEED TO CHANGE!");
+			$("#carousel-" + this._id).carousel(this.selectedImage);
+		};
+
+		if (activeDefaultItem.index() < 0 && defaultItem.index() > 0) {
+			// This means that 
+			console.log("REMOVE!");
+			defaultItem.remove();
+		};
+
+		console.log("Active: " + active.index() + " : " + this.selectedImage);
+
+		if (!isEmtpy && active.index() != this.selectedImage) {
+			$("#carousel-" + this._id).carousel(this.selectedImage);
+		}
+
+		return true;
 	}
 });
 
