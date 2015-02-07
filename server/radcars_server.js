@@ -1,3 +1,9 @@
+var fetchImagesQueue = new PowerQueue({
+	maxFailures: 1,
+	debug: true,
+	maxProcessing: 2
+});
+
 Meteor.publish('images', function() {
 	return Images.find({}, {
 		"fields": {
@@ -70,6 +76,7 @@ Meteor.methods({
 
 var flushAllData = function flushAllData() {
 	console.log("Flushing Data.")
+	fetchImagesQueue.reset();
 	Cars.remove({});
 	Images.remove({});
 	populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM");
@@ -91,6 +98,7 @@ var populateCars = function populateCars(tier, source) {
 
 
 		console.log("Searching for: " + apiData.params.heading + " in " + searchCounter);
+		console.log("Images queue running: " + fetchImagesQueue.isRunning() + " : " + fetchImagesQueue.isPaused() + " : " + fetchImagesQueue.length());
 
 		Meteor.setTimeout(function() {
 			Meteor.http.get(apiData.url, apiData, function(err, res) {
@@ -140,7 +148,8 @@ var populateCars = function populateCars(tier, source) {
 
 var createImageList = function createImageList(postID, originalImageList) {
 
-	//console.log(originalImageList);
+	if (!postID || !originalImageList) return;
+
 	var returnImages = _.filter(originalImageList, function(i) {
 		return i.full;
 	});
@@ -164,7 +173,7 @@ var createImageList = function createImageList(postID, originalImageList) {
 		// 	fetchImage(pID, image.full);
 		// }, (searchCounter++) * 3000); // stagger these guys 5 seconds 
 
-		queue.add(function(done) {
+		fetchImagesQueue.add(function(done) {
 			fetchImage(pID, image.full, done);
 		});
 	});
@@ -172,33 +181,51 @@ var createImageList = function createImageList(postID, originalImageList) {
 
 };
 
-var queue = new PowerQueue();
+
 
 var fetchImage = function fetchImage(postID, imgUrl, done) {
 
-	//console.log("Fetching: " + imgUrl + " : " + queue.length());
-
-	if (!postID || !imgUrl || imgUrl.length <= 0) return;
+	console.log("Fetching: " + imgUrl + " : " + fetchImagesQueue.length());
+	
+	//console.log("1");
+	if (!postID || !imgUrl || imgUrl.length <= 0) {
+		done();
+		return;
+	};
 
 	var request = Meteor.npmRequire('request');
 	var carObj = Cars.findOne(postID);
 
+	if (!carObj){
+		console.log("No car found!");
+		done();
+		return;
+	};
+	//console.log("2");
 	request.get({
 		url: imgUrl,
 		encoding: null
 	}, Meteor.bindEnvironment(function(e, r, buffer) {
 		var newFile = new FS.File();
-		if (!buffer) return;
-
+		//console.log("3");
+		if (!buffer) {
+			console.log("No buffer");
+			done();
+			return;
+		}
+		//console.log("4");
 		newFile.attachData(buffer, {
 			type: 'image/jpeg'
 		}, function(error) {
+			console.log("5");
 			if (error) {
+				done();
 				throw error;
 			};
 			newFile.name('carImage.jpeg');
-
+			//console.log("6");
 			var newImage = Images.insert(newFile);
+			//console.log("7");
 			Cars.update(carObj._id, {
 				//$set: {
 				//imageID: newImage._id,
@@ -210,18 +237,17 @@ var fetchImage = function fetchImage(postID, imgUrl, done) {
 						id: newImage._id
 					}
 				}
-			}, done);
+			});
+			//console.log("8");
+			done();
 
 		});
 	}));
 
 
-
 };
 
 var pruneCars = function pruneCars() {
-
-	queue.reset();
 
 	var expiresDate = new Date();
 	expiresDate.setDate(expiresDate.getDate() - 1);
@@ -312,7 +338,6 @@ Meteor.startup(function() {
 	var populateTier0Interval = Meteor.setInterval(function() {
 		populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM")
 	}, 3600000);
-	//}, 30000);
 
 	// Update tier 1 every hour
 	// REMOVED THIS SEARCH FOR NOW, TOO MANY OLD RESULTS

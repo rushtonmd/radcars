@@ -166,7 +166,7 @@ Template.car.helpers({
 		//console.log("HEY!" + this.imageID);
 		var selectedImg = this.imageList[this.selectedImage];
 
-		return selectImageToServe(selectedImg.id);
+		return selectImageToServe(selectedImg && selectedImg.id);
 	}
 });
 
@@ -401,11 +401,14 @@ Template.carCurationItem.created = function() {
 
 Template.carCurationItem.rendered = function() {
 
+	//console.log("RENDER");
 	if (!this._rendered) {
 		//var cID = "carousel-" + this.data._id;
 		this.$("#carousel-" + this.data._id).carousel();
 		this._rendered = true;
 	}
+
+	cleanupCurationCarousel(this.data);
 
 
 	//console.log(this.$('.carousel-inner').eq(1).addClass('active')) ;
@@ -423,13 +426,17 @@ Template.carCurationItem.rendered = function() {
 	// function afterAction() {
 	// 	console.log("alert");
 	// };
-	this.$("div.thumbnail").fadeIn(1000);
+	this.$("div.admin-item-background").fadeIn(1000);
 };
 
 Template.carCurationItem.events({
 	"click button.toggle-curation-lame": function(event) {
 		var newValue = (this.curation === "LAME") ? "" : "LAME";
-		Cars.update(this._id, {$set: {'curation': newValue}});
+		Cars.update(this._id, {
+			$set: {
+				'curation': newValue
+			}
+		});
 		// Meteor.call('setCurationValue', {
 		// 	_id: this._id,
 		// 	curation: newValue
@@ -437,11 +444,11 @@ Template.carCurationItem.events({
 	},
 	"slide.bs.carousel div.carousel": function(event) {
 
-		var active = $(event.target).find('.carousel-inner > .item.active');
-		var from = active.index();
+		//var active = $(event.target).find('.carousel-inner > .item.active');
+		//var from = active.index();
 		var next = $(event.relatedTarget);
 		var to = next.index();
-		var direction = event.direction;
+		//var direction = event.direction;
 
 		//console.log(from + " to " + to + " : " + active.index());
 		//console.log(this.selectedImage);
@@ -479,6 +486,34 @@ Template.carCurationItem.events({
 	}
 });
 
+var cleanupCurationCarousel = function cleanupCurationCarousel(data) {
+
+	//console.log("Cleanup carousel!");
+
+	var isEmpty = data.imageList.length <= 0;
+	var active = $("#carousel-" + data._id).find('.carousel-inner > .item.active');
+	var nextItem = $("#carousel-" + data._id).find('.carousel-inner > .item.next');
+	var activeDefaultItem = $("#carousel-" + data._id).find('.carousel-inner > .item.active.default-item');
+	var defaultItem = $("#carousel-" + data._id).find('.carousel-inner > .item.default-item');
+
+	if (!isEmpty && activeDefaultItem.index() > 0) {
+		//console.log("NEED TO CHANGE!");
+		$("#carousel-" + data._id).carousel(data.selectedImage);
+	};
+
+	if (activeDefaultItem.index() < 0 && defaultItem.index() > 0) {
+		// This means that 
+		//console.log("REMOVE!");
+		defaultItem.remove();
+	};
+
+	//console.log("Active: " + active.index() + " : " + data.selectedImage + " : " + nextItem.index());
+
+	if (!isEmpty && active.index() != data.selectedImage && nextItem.index() === -1) {
+		$("#carousel-" + data._id).carousel(data.selectedImage);
+	}
+};
+
 Template.carCurationItem.helpers({
 	image: function() {
 		//var tsturl = "http://images.craigslist.org/00b0b_5vNqTpyxLPb_600x450.jpg";
@@ -497,35 +532,12 @@ Template.carCurationItem.helpers({
 		return this.curation === "LAME";
 	},
 	carouselImageList: function() {
+
+		var self = this;
+
+		cleanupCurationCarousel(self);
+
 		return this.imageList;
-	},
-	imageListEmpty: function() {
-
-		//select the carousel and move to the selected image
-
-		var isEmtpy = this.imageList.length <= 0;
-		var active = $("#carousel-" + this._id).find('.carousel-inner > .item.active');
-		var activeDefaultItem = $("#carousel-" + this._id).find('.carousel-inner > .item.active.default-item');
-		var defaultItem = $("#carousel-" + this._id).find('.carousel-inner > .item.default-item');
-
-		if (!isEmtpy && activeDefaultItem.index() > 0) {
-			//console.log("NEED TO CHANGE!");
-			$("#carousel-" + this._id).carousel(this.selectedImage);
-		};
-
-		if (activeDefaultItem.index() < 0 && defaultItem.index() > 0) {
-			// This means that 
-			//console.log("REMOVE!");
-			defaultItem.remove();
-		};
-
-		//console.log("Active: " + active.index() + " : " + this.selectedImage);
-
-		if (!isEmtpy && active.index() != this.selectedImage) {
-			$("#carousel-" + this._id).carousel(this.selectedImage);
-		}
-
-		return true;
 	}
 });
 
