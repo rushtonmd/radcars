@@ -13,6 +13,7 @@ Meteor.publish('images', function() {
 	});
 });
 
+
 Meteor.publish('publication', function() {
 	Counts.publish(this, 'images-counter', Images.find());
 	Counts.publish(this, 'cars-counter', Cars.find());
@@ -71,6 +72,15 @@ Meteor.methods({
 				selectedImage: options.selectedImage
 			}
 		});
+	},
+	incrementImagesQueue: function(){
+		fetchImagesQueue.next("Manual increment of queue.");
+	},
+	resetImagesQueue: function(){
+		fetchImagesQueue.reset();
+	},
+	imagesQueueLength: function(){
+		return fetchImagesQueue.length();
 	}
 });
 
@@ -217,7 +227,6 @@ var fetchImage = function fetchImage(postID, imgUrl, done) {
 		newFile.attachData(buffer, {
 			type: 'image/jpeg'
 		}, function(error) {
-			console.log("5");
 			if (error) {
 				done();
 				throw error;

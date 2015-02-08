@@ -32,6 +32,10 @@ Handlebars.registerHelper("prettifyMoney", function(money) {
 	return accounting.formatMoney(money);
 });
 
+Handlebars.registerHelper("prettifyHeading", function(heading) {
+	return heading.toString().replace("span classstar/span", "");
+});
+
 Handlebars.registerHelper("shortifyBody", function(body) {
 	if (body.length > 500) return body.substring(0, 500) + "...";
 	return body;
@@ -48,10 +52,18 @@ Handlebars.registerHelper("longifySource", function(source) {
 
 });
 
+Template.statsTemplate.rendered = function() {
+	// Tracker.autorun(function() {
+	// 	var arr = Session.get("IMAGES_QUEUE_LENGTH");
+	// 	//$(self.find(".chart")).sparkline(arr);
+	// });
+};
+
 Template.statsTemplate.helpers({
 	isUserAnAdmin: function() {
 		var usr = Meteor.userId();
 		if (usr) {
+			Meteor.subscribe('imagesQueueCounter');
 			if (countsSubscription) countsSubscription.stop();
 			countsSubscription = Meteor.subscribe('publication');
 		} else {
@@ -60,12 +72,31 @@ Template.statsTemplate.helpers({
 		return Meteor.userId();
 	},
 	imagesCount: function() {
+
+		Meteor.call('imagesQueueLength', function(err, data) {
+			if (err) console.log(err);
+			Session.set('IMAGES_QUEUE_LENGTH', data);
+
+		});
+
 		return Counts.get('images-counter');
 	},
 	carsCount: function() {
 		return Counts.get('cars-counter');
+	},
+	imagesQueueLength: function() {
+		return Session.get('IMAGES_QUEUE_LENGTH');
 	}
-})
+});
+
+Template.statsTemplate.events({
+	'click button.reset-images-queue': function() {
+		Meteor.call('resetImagesQueue');
+	},
+	'click button.increment-images-queue': function() {
+		Meteor.call('incrementImagesQueue');
+	}
+});
 
 Template.navigationBar.created = function() {
 
