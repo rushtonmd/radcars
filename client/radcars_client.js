@@ -73,18 +73,17 @@ Template.statsTemplate.helpers({
 	},
 	imagesCount: function() {
 
-		Meteor.call('imagesQueueLength', function(err, data) {
-			if (err) console.log(err);
-			Session.set('IMAGES_QUEUE_LENGTH', data);
-
-		});
-
 		return Counts.get('images-counter');
 	},
 	carsCount: function() {
 		return Counts.get('cars-counter');
 	},
 	imagesQueueLength: function() {
+		Meteor.call('imagesQueueLength', function(err, data) {
+			if (err) console.log(err);
+			Session.set('IMAGES_QUEUE_LENGTH', data);
+
+		});
 		return Session.get('IMAGES_QUEUE_LENGTH');
 	}
 });
