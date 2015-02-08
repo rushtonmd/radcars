@@ -63,7 +63,6 @@ Template.statsTemplate.helpers({
 	isUserAnAdmin: function() {
 		var usr = Meteor.userId();
 		if (usr) {
-			Meteor.subscribe('imagesQueueCounter');
 			if (countsSubscription) countsSubscription.stop();
 			countsSubscription = Meteor.subscribe('publication');
 		} else {
@@ -145,7 +144,8 @@ var setFiltersOnCars = function setFiltersOnCars(filterText) {
 			}
 		},
 		sort: {
-			timestamp: -1
+			timestamp: -1,
+			cityname: 1
 		}
 	});
 };
@@ -171,6 +171,7 @@ Template.body.events({
 	'keyup input.filter-cars-text': function() {
 		var inputBox = $("input.filter-cars-text");
 		var text = inputBox.val().toLowerCase();
+		if (text.length < 2) return;
 		setFiltersOnCars(text);
 		setFiltersOnCarCuration(text);
 	},
@@ -472,7 +473,7 @@ Template.carCurationItem.events({
 		// 	curation: newValue
 		// });
 	},
-	"slide.bs.carousel div.carousel": function(event) {
+	"slid.bs.carousel div.carousel": function(event) {
 
 		//var active = $(event.target).find('.carousel-inner > .item.active');
 		//var from = active.index();
@@ -480,14 +481,17 @@ Template.carCurationItem.events({
 		var to = next.index();
 		//var direction = event.direction;
 
-		//console.log(from + " to " + to + " : " + active.index());
+		//console.log("Update: " + to + " : " + this.selectedImage);
 		//console.log(this.selectedImage);
 
+		if (to === this.selectedImage) return;
+		//Meteor.setTimeout(function(){
 		Cars.update(this._id, {
 			$set: {
 				selectedImage: to
 			}
 		});
+		//}, 2000);
 		// Need to update the current car with the selected image
 
 	},
@@ -520,28 +524,45 @@ var cleanupCurationCarousel = function cleanupCurationCarousel(data) {
 
 	//console.log("Cleanup carousel!");
 
-	var isEmpty = data.imageList.length <= 0;
-	var active = $("#carousel-" + data._id).find('.carousel-inner > .item.active');
 	var nextItem = $("#carousel-" + data._id).find('.carousel-inner > .item.next');
+
+	if (nextItem.index() >= 0) return;
+
+	var isEmpty = data.imageList.length <= 0;
+
+	if (isEmpty) return;
+
+
+	var active = $("#carousel-" + data._id).find('.carousel-inner > .item.active');
 	var activeDefaultItem = $("#carousel-" + data._id).find('.carousel-inner > .item.active.default-item');
 	var defaultItem = $("#carousel-" + data._id).find('.carousel-inner > .item.default-item');
 
-	if (!isEmpty && activeDefaultItem.index() > 0) {
-		//console.log("NEED TO CHANGE!");
+	// if (!isEmpty && activeDefaultItem.index() > 0) {
+	// 	//console.log("NEED TO CHANGE!");
+	// 	//$("#carousel-" + data._id).carousel(data.selectedImage);
+	// };
+
+	// if (activeDefaultItem.index() < 0 && defaultItem.index() > 0) {
+	// 	// This means that 
+	// 	//console.log("REMOVE!");
+	// 	defaultItem.remove();
+	// };
+
+	//console.log("Active: " + active.index() + " : " + data.selectedImage + " : " + nextItem.index());
+
+	// If there are items in the list
+	// If the active item is different than the selected item 
+	if (active.index() != data.selectedImage) {
 		$("#carousel-" + data._id).carousel(data.selectedImage);
-	};
+		return;
+	}
 
 	if (activeDefaultItem.index() < 0 && defaultItem.index() > 0) {
 		// This means that 
 		//console.log("REMOVE!");
 		defaultItem.remove();
+		return;
 	};
-
-	//console.log("Active: " + active.index() + " : " + data.selectedImage + " : " + nextItem.index());
-
-	if (!isEmpty && active.index() != data.selectedImage && nextItem.index() === -1) {
-		$("#carousel-" + data._id).carousel(data.selectedImage);
-	}
 };
 
 Template.carCurationItem.helpers({
