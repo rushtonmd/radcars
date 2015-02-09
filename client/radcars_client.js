@@ -477,7 +477,7 @@ Template.carCurationItem.events({
 		// 	curation: newValue
 		// });
 	},
-	"slid.bs.carousel div.carousel": function(event) {
+	"slide.bs.carousel div.carousel": function(event) {
 
 		//var active = $(event.target).find('.carousel-inner > .item.active');
 		//var from = active.index();
