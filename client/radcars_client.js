@@ -1,5 +1,9 @@
 Meteor.subscribe('images');
 
+var carSearchJobs = JobCollection('carSearchJobQueue');
+Meteor.subscribe('allSearchJobs');
+
+
 var countsSubscription;
 
 

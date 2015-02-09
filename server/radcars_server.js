@@ -1,8 +1,15 @@
-var fetchImagesQueue = new PowerQueue({
-	maxFailures: 1,
-	debug: true,
-	maxProcessing: 2
-});
+// var fetchImagesQueue = new PowerQueue({
+// 	maxFailures: 1,
+// 	debug: true,
+// 	maxProcessing: 2
+// });
+
+// let's try jobs!
+var carSearchJobs = JobCollection('carSearchJobQueue');
+
+// Meteor.publish('allSearchJobs', function() {
+// 	return carSearchJobs.find({});
+// });
 
 Meteor.publish('images', function() {
 	return Images.find({}, {
@@ -73,23 +80,25 @@ Meteor.methods({
 			}
 		});
 	},
-	incrementImagesQueue: function(){
-		fetchImagesQueue.next("Manual increment of queue.");
+	incrementImagesQueue: function() {
+		//fetchImagesQueue.next("Manual increment of queue.");
 	},
-	resetImagesQueue: function(){
-		fetchImagesQueue.reset();
+	resetImagesQueue: function() {
+		//fetchImagesQueue.reset();
 	},
-	imagesQueueLength: function(){
-		return fetchImagesQueue.length();
+	imagesQueueLength: function() {
+		return carSearchJobs.find().count();
 	}
 });
 
 var flushAllData = function flushAllData() {
 	console.log("Flushing Data.")
-	fetchImagesQueue.reset();
+		//fetchImagesQueue.reset();
 	Cars.remove({});
 	Images.remove({});
-	populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM");
+
+	setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
+	//populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM");
 };
 
 var populateCars = function populateCars(tier, source) {
@@ -106,13 +115,33 @@ var populateCars = function populateCars(tier, source) {
 
 		var lastupdated = new Date();
 
+		var job = carSearchJobs.createJob('carSearch', {
+			"searchText": search.headingSearchText,
+			"tier": tier,
+			"source": source
+		});
 
-		console.log("Searching for: " + apiData.params.heading + " in " + searchCounter);
-		console.log("Images queue running: " + fetchImagesQueue.isRunning() + " : " + fetchImagesQueue.isPaused() + " : " + fetchImagesQueue.length());
+		job.repeat({
+			repeats: Job.forever,
+			wait: 1000
+		});
+
+		job.priority('normal');
+
+		job.save();
+
+		return;
+
+		//console.log("Searching for: " + apiData.params.heading + " in " + searchCounter);
+		//console.log("Images queue running: " + fetchImagesQueue.isRunning() + " : " + fetchImagesQueue.isPaused() + " : " + fetchImagesQueue.length());
+
+
+		//Change this to a QUEUE instead
+
 
 		Meteor.setTimeout(function() {
 			Meteor.http.get(apiData.url, apiData, function(err, res) {
-				console.log("Data returned!" + res.data.postings.length);
+				//console.log("Data returned!" + res.data.postings.length);
 				//console.log(res.data);
 				var postings = res.data.postings;
 				_.each(postings, function(post) {
@@ -183,9 +212,24 @@ var createImageList = function createImageList(postID, originalImageList) {
 		// 	fetchImage(pID, image.full);
 		// }, (searchCounter++) * 3000); // stagger these guys 5 seconds 
 
-		fetchImagesQueue.add(function(done) {
-			fetchImage(pID, image.full, done);
+		// fetchImagesQueue.add(function(done) {
+		// 	fetchImage(pID, image.full, done);
+		// });
+
+		job = carSearchJobs.createJob('processImage', {
+			"postID": pID,
+			"url": image.full
 		});
+
+		job.retry({
+			retries: 3, // Retry 3 times,
+			wait: 20000, // waiting 20 seconds between attempts
+			backoff: 'constant' // wait constant amount of time between each retry
+		});
+
+		job.priority('high');
+
+		job.save();
 	});
 
 
@@ -195,8 +239,8 @@ var createImageList = function createImageList(postID, originalImageList) {
 
 var fetchImage = function fetchImage(postID, imgUrl, done) {
 
-	console.log("Fetching: " + imgUrl + " : " + fetchImagesQueue.length());
-	
+	//console.log("Fetching: " + imgUrl + " : " + fetchImagesQueue.length());
+
 	//console.log("1");
 	if (!postID || !imgUrl || imgUrl.length <= 0) {
 		done();
@@ -206,7 +250,7 @@ var fetchImage = function fetchImage(postID, imgUrl, done) {
 	var request = Meteor.npmRequire('request');
 	var carObj = Cars.findOne(postID);
 
-	if (!carObj){
+	if (!carObj) {
 		console.log("No car found!");
 		done();
 		return;
@@ -282,14 +326,18 @@ var pruneImages = function pruneImages() {
 	// Get all the used images from the Cars collection
 	var usedImagesSearch = Cars.find({}, {
 		fields: {
-			imageID: 1,
+			imageList: 1,
 			_id: 0
 		}
 	}).fetch();
 	var usedImages = [];
 
 	usedImagesSearch.forEach(function(car) {
-		if (car.imageID) usedImages.push(car.imageID);
+		if (car.imageList && car.imageList.length > 0) {
+			_.each(car.imageList, function(image){
+				usedImages.push(image.id);
+			});	
+		};
 	});
 
 	// console.log("Pruning Images");
@@ -297,7 +345,7 @@ var pruneImages = function pruneImages() {
 
 	// var imagesToDelete = Images.find({_id: {$nin : usedImages}});
 
-	// console.log(imagesToDelete.count());
+	//console.log(usedImages.length + " : " + Images.find().count());
 
 	Images.remove({
 		_id: {
@@ -336,6 +384,143 @@ var apiDataFactory = function apiDataFactory(heading, tier, source) {
 	};
 };
 
+var setupCarSearchJobs = function(tier, source) {
+
+	//console.log(carSearchJobs.find({}).count());
+	//console.log(carSearchJobs.findOne());
+	carSearchJobs.remove({
+		'type': 'carSearch'
+	});
+	carSearchJobs.remove({
+		'type': 'processImage'
+	});
+	//console.log(carSearchJobs.find({}).count());
+
+
+
+	var searches = Searches.find({});
+	var frequency = 3600000;
+	var job = {};
+
+	// Loop through all the searches and create jobs
+	searches.forEach(function(search) {
+		job = carSearchJobs.createJob('carSearch', {
+			"searchText": search.headingSearchText,
+			"tier": tier,
+			"source": source
+		});
+
+		job.repeat({
+			repeats: Job.forever,
+			wait: frequency
+		});
+
+		job.priority('normal');
+
+		job.save();
+
+	});
+
+	//console.log(carSearchJobs.find({}).count());
+
+	// .retry({
+	// 	retries: 5,
+	// 	wait: 15 * 60 * 1000
+	// }) // 15 minutes between attempts
+	//.repeat({repeats: Job.forever})
+	//.delay(60 * 60 * 1000) // Wait an hour before first try
+	//.save(); // Commit it to the server
+
+};
+
+var searchWorkers = Job.processJobs('carSearchJobQueue', 'carSearch', {
+		concurrency: 1,
+		cargo: 1,
+		pollInterval: 15000, // 15 second polling for new jobs
+		prefetch: 1
+	},
+	function(job, cb) {
+
+		//console.log("Search: " + job.data.searchText);
+		//console.log(job.data);
+
+		var tier = job.data.tier;
+		var source = job.data.source;
+		var searchText = job.data.searchText;
+
+		var apiData = apiDataFactory(searchText, tier, source);
+
+		var lastupdated = new Date();
+
+		Meteor.http.get(apiData.url, apiData, function(err, res) {
+			//console.log(err);
+			//console.log("Data returned!" + res.data.postings.length);
+			//console.log(res.data);
+			var postings = res.data.postings;
+			_.each(postings, function(post) {
+				//console.log("POST: " + post.heading)
+				//var newCar = Cars.insert(post);
+				var imageUrl = post.images && post.images[0] && post.images[0].full || post.images[0].thumb;
+				var imageList = post.images;
+				var newCar = Cars.upsert({
+					external_id: post.external_id
+				}, {
+					$set: {
+						//category: post.category,
+						external_id: post.external_id,
+						external_url: post.external_url,
+						heading: post.heading,
+						headingSearchable: post.heading.toLowerCase(),
+						id: post.id,
+						//imageList: [],
+						//images: imageList,
+						//location: post.location,
+						cityname: CityName(post.location.city),
+						price: post.price,
+						source: post.source,
+						timestamp: post.timestamp,
+						lastupdated: lastupdated,
+						body: post.body
+					},
+					$setOnInsert: {
+						imageList: [],
+						short_url: new Date().getTime().toString(36)
+					}
+				});
+				//console.log(newCar);
+				createImageList(newCar.insertedId, imageList);
+			});
+
+			job.done();
+			cb();
+
+		});
+
+
+
+	});
+
+var imageWorkers = Job.processJobs('carSearchJobQueue', 'processImage', {
+		concurrency: 1,
+		cargo: 1,
+		pollInterval: 2000,
+		prefetch: 1
+	},
+
+	function(job, cb) {
+
+		var postID = job.data.postID;
+		var url = job.data.url;
+
+		//console.log("Processing Image " + url);
+
+		fetchImage(postID, url, function() {
+			job.done();
+			cb();
+		});
+
+	});
+
 Meteor.startup(function() {
 
 	AccountsEntry.config({
@@ -344,9 +529,9 @@ Meteor.startup(function() {
 	});
 
 	// Update tier 0 every 1 hour
-	var populateTier0Interval = Meteor.setInterval(function() {
-		populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM")
-	}, 3600000);
+	// var populateTier0Interval = Meteor.setInterval(function() {
+	// 	populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM")
+	// }, 3600000);
 
 	// Update tier 1 every hour
 	// REMOVED THIS SEARCH FOR NOW, TOO MANY OLD RESULTS
@@ -358,5 +543,9 @@ Meteor.startup(function() {
 	var pruneCarsInterval = Meteor.setInterval(function() {
 		if (new Date().getHours() === 0) pruneCars();
 	}, 3600000); //check every hour
+
+	carSearchJobs.startJobs();
+
+	setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
 
 });
