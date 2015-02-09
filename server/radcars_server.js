@@ -437,11 +437,11 @@ var searchWorkers = Job.processJobs('carSearchJobQueue', 'carSearch', {
 		concurrency: 1,
 		cargo: 1,
 		pollInterval: 15000, // 15 second polling for new jobs
-		prefetch: 1
+		prefetch: 0
 	},
 	function(job, cb) {
 
-		//console.log("Search: " + job.data.searchText);
+		console.log("Search: " + job.data.searchText);
 		//console.log(job.data);
 
 		var tier = job.data.tier;
@@ -504,7 +504,7 @@ var imageWorkers = Job.processJobs('carSearchJobQueue', 'processImage', {
 		concurrency: 1,
 		cargo: 1,
 		pollInterval: 2000,
-		prefetch: 1
+		prefetch: 0
 	},
 
 	function(job, cb) {
