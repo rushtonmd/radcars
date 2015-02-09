@@ -334,9 +334,9 @@ var pruneImages = function pruneImages() {
 
 	usedImagesSearch.forEach(function(car) {
 		if (car.imageList && car.imageList.length > 0) {
-			_.each(car.imageList, function(image){
+			_.each(car.imageList, function(image) {
 				usedImages.push(image.id);
-			});	
+			});
 		};
 	});
 
@@ -456,40 +456,42 @@ var searchWorkers = Job.processJobs('carSearchJobQueue', 'carSearch', {
 			//console.log(err);
 			//console.log("Data returned!" + res.data.postings.length);
 			//console.log(res.data);
-			var postings = res.data.postings;
-			_.each(postings, function(post) {
-				//console.log("POST: " + post.heading)
-				//var newCar = Cars.insert(post);
-				var imageUrl = post.images && post.images[0] && post.images[0].full || post.images[0].thumb;
-				var imageList = post.images;
-				var newCar = Cars.upsert({
-					external_id: post.external_id
-				}, {
-					$set: {
-						//category: post.category,
-						external_id: post.external_id,
-						external_url: post.external_url,
-						heading: post.heading,
-						headingSearchable: post.heading.toLowerCase(),
-						id: post.id,
-						//imageList: [],
-						//images: imageList,
-						//location: post.location,
-						cityname: CityName(post.location.city),
-						price: post.price,
-						source: post.source,
-						timestamp: post.timestamp,
-						lastupdated: lastupdated,
-						body: post.body
-					},
-					$setOnInsert: {
-						imageList: [],
-						short_url: new Date().getTime().toString(36)
-					}
+			if (res && res.data) {
+				var postings = res.data.postings;
+				_.each(postings, function(post) {
+					//console.log("POST: " + post.heading)
+					//var newCar = Cars.insert(post);
+					var imageUrl = post.images && post.images[0] && post.images[0].full || post.images[0].thumb;
+					var imageList = post.images;
+					var newCar = Cars.upsert({
+						external_id: post.external_id
+					}, {
+						$set: {
+							//category: post.category,
+							external_id: post.external_id,
+							external_url: post.external_url,
+							heading: post.heading,
+							headingSearchable: post.heading.toLowerCase(),
+							id: post.id,
+							//imageList: [],
+							//images: imageList,
+							//location: post.location,
+							cityname: CityName(post.location.city),
+							price: post.price,
+							source: post.source,
+							timestamp: post.timestamp,
+							lastupdated: lastupdated,
+							body: post.body
+						},
+						$setOnInsert: {
+							imageList: [],
+							short_url: new Date().getTime().toString(36)
+						}
+					});
+					//console.log(newCar);
+					createImageList(newCar.insertedId, imageList);
 				});
-				//console.log(newCar);
-				createImageList(newCar.insertedId, imageList);
-			});
+			};
 
 			job.done();
 			cb();

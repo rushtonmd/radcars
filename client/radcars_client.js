@@ -1,7 +1,7 @@
 Meteor.subscribe('images');
 
-var carSearchJobs = JobCollection('carSearchJobQueue');
-Meteor.subscribe('allSearchJobs');
+// var carSearchJobs = JobCollection('carSearchJobQueue');
+// Meteor.subscribe('allSearchJobs');
 
 
 var countsSubscription;
@@ -68,7 +68,7 @@ Template.statsTemplate.helpers({
 		var usr = Meteor.userId();
 		if (usr) {
 			if (countsSubscription) countsSubscription.stop();
-			countsSubscription = Meteor.subscribe('publication');
+			//countsSubscription = Meteor.subscribe('publication');
 		} else {
 			if (countsSubscription) countsSubscription.stop();
 		}
@@ -82,12 +82,12 @@ Template.statsTemplate.helpers({
 		return Counts.get('cars-counter');
 	},
 	imagesQueueLength: function() {
-		Meteor.call('imagesQueueLength', function(err, data) {
-			if (err) console.log(err);
-			Session.set('IMAGES_QUEUE_LENGTH', data);
+		// Meteor.call('imagesQueueLength', function(err, data) {
+		// 	if (err) console.log(err);
+		// 	Session.set('IMAGES_QUEUE_LENGTH', data);
 
-		});
-		return Session.get('IMAGES_QUEUE_LENGTH');
+		// });
+		// return Session.get('IMAGES_QUEUE_LENGTH');
 	}
 });
 
@@ -115,7 +115,7 @@ Template.navigationBar.helpers({
 		var usr = Meteor.userId();
 		if (usr) {
 			if (countsSubscription) countsSubscription.stop();
-			countsSubscription = Meteor.subscribe('publication');
+			//countsSubscription = Meteor.subscribe('publication');
 		} else {
 			if (countsSubscription) countsSubscription.stop();
 		}
