@@ -84,6 +84,9 @@ Meteor.methods({
 		//fetchImagesQueue.next("Manual increment of queue.");
 	},
 	resetImagesQueue: function() {
+		console.log("Resetting cars and images queues.")
+		setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
+		carSearchJobs.startJobs();
 		//fetchImagesQueue.reset();
 	},
 	imagesQueueLength: function() {
