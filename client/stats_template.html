@@ -5,11 +5,13 @@
         <!-- Main jumbotron for a primary marketing message or call to action -->
         <div class="jumbotron">
             <h1>STATS!!!!</h1>
-            <p>Total Cars: {{carsCount}}</p>
-            <p>Total Images: {{imagesCount}}</p>
-            <p>Images Queue: {{imagesQueueLength}}</p>
-            <button class="btn btn-default increment-images-queue btn-lg" type="button">Increment Images Queue</button>
-            <button class="btn btn-default reset-images-queue btn-lg" type="button">Reset Images Queue</button>
+            {{#if isUserAnAdmin}}
+	            <p>Total Cars: {{carsCount}}</p>
+	            <p>Total Images: {{imagesCount}}</p>
+	            <p>Images Queue: {{imagesQueueLength}}</p>
+	            <button class="btn btn-default increment-images-queue btn-lg" type="button">Increment Images Queue</button>
+	            <button class="btn btn-default reset-images-queue btn-lg" type="button">Reset Images Queue</button>
+            {{/if}}
         </div>
 
     </div>

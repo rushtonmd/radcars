@@ -68,14 +68,13 @@ Template.statsTemplate.helpers({
 		var usr = Meteor.userId();
 		if (usr) {
 			if (countsSubscription) countsSubscription.stop();
-			//countsSubscription = Meteor.subscribe('publication');
+			countsSubscription = Meteor.subscribe('publication');
 		} else {
 			if (countsSubscription) countsSubscription.stop();
 		}
 		return Meteor.userId();
 	},
 	imagesCount: function() {
-
 		return Counts.get('images-counter');
 	},
 	carsCount: function() {
@@ -113,12 +112,12 @@ Template.navigationBar.helpers({
 	},
 	isUserAnAdmin: function() {
 		var usr = Meteor.userId();
-		if (usr) {
-			if (countsSubscription) countsSubscription.stop();
-			//countsSubscription = Meteor.subscribe('publication');
-		} else {
-			if (countsSubscription) countsSubscription.stop();
-		}
+		// if (usr) {
+		// 	if (countsSubscription) countsSubscription.stop();
+		// 	//countsSubscription = Meteor.subscribe('publication');
+		// } else {
+		// 	if (countsSubscription) countsSubscription.stop();
+		// }
 		return Meteor.userId();
 	}
 });
