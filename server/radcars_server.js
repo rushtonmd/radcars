@@ -528,6 +528,20 @@ var imageWorkers = Job.processJobs('carSearchJobQueue', 'processImage', {
 
 Meteor.startup(function() {
 
+	// Ensure MongoDB Indexes
+	carSearchJobs._ensureIndex({
+		_id: 1,
+		type: 1,
+		status: 1
+	});
+	Cars._ensureIndex({
+		_id: 1,
+		external_id: 1,
+		lastupdated: 1,
+		id: 1
+	});
+
+
 	AccountsEntry.config({
 		signupCode: ConfigSettings("site_signup_code") //, // only restricts username+password users, not OAuth
 			//defaultProfile: someDefault: 'default'
