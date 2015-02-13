@@ -91,6 +91,12 @@ Meteor.methods({
 	},
 	imagesQueueLength: function() {
 		return carSearchJobs.find().count();
+	},
+	numberOfCars: function() {
+		return Cars.find().count();
+	},
+	numberOfImages: function(){
+		return Images.find().count();
 	}
 });
 
@@ -558,13 +564,13 @@ Meteor.startup(function() {
 	// 	populateCars(1, "CRAIG|AUTOC|AUTOD|EBAYM")
 	// }, 3600000);
 
-	// Prune old cars and images every night at midnight-ish
+	// Prune old cars and images every 4 hours ish to save memory
 	var pruneCarsInterval = Meteor.setInterval(function() {
-		if (new Date().getHours() === 0) pruneCars();
+		if (new Date().getHours() % 4 === 0) pruneCars();
 	}, 3600000); //check every hour
 
-	carSearchJobs.startJobs();
-
 	setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
+
+	carSearchJobs.startJobs();
 
 });

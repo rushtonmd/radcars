@@ -66,27 +66,43 @@ Template.statsTemplate.rendered = function() {
 Template.statsTemplate.helpers({
 	isUserAnAdmin: function() {
 		var usr = Meteor.userId();
-		if (usr) {
-			if (countsSubscription) countsSubscription.stop();
-			countsSubscription = Meteor.subscribe('publication');
-		} else {
-			if (countsSubscription) countsSubscription.stop();
-		}
+		// if (usr) {
+		// 	if (countsSubscription) countsSubscription.stop();
+		// 	countsSubscription = Meteor.subscribe('publication');
+		// } else {
+		// 	if (countsSubscription) countsSubscription.stop();
+		// }
 		return Meteor.userId();
 	},
-	imagesCount: function() {
-		return Counts.get('images-counter');
-	},
-	carsCount: function() {
-		return Counts.get('cars-counter');
-	},
+	// imagesCount: function() {
+	// 	return Counts.get('images-counter');
+	// },
+	// carsCount: function() {
+	// 	return Counts.get('cars-counter');
+	// },
 	imagesQueueLength: function() {
-		// Meteor.call('imagesQueueLength', function(err, data) {
-		// 	if (err) console.log(err);
-		// 	Session.set('IMAGES_QUEUE_LENGTH', data);
+		Meteor.call('imagesQueueLength', function(err, data) {
+			if (err) console.log(err);
+			Session.set('IMAGES_QUEUE_LENGTH', data);
 
-		// });
-		// return Session.get('IMAGES_QUEUE_LENGTH');
+		});
+		return Session.get('IMAGES_QUEUE_LENGTH');
+	},
+	numberOfCars: function() {
+		Meteor.call('numberOfCars', function(err, data) {
+			if (err) console.log(err);
+			Session.set('NUMBER_OF_CARS', data);
+
+		});
+		return Session.get('NUMBER_OF_CARS');
+	},
+	numberOfImages: function() {
+		Meteor.call('numberOfImages', function(err, data) {
+			if (err) console.log(err);
+			Session.set('NUMBER_OF_IMAGES', data);
+
+		});
+		return Session.get('NUMBER_OF_IMAGES');
 	}
 });
 
