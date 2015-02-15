@@ -97,6 +97,9 @@ Meteor.methods({
 	},
 	numberOfImages: function(){
 		return Images.find().count();
+	},
+	pruneCars: function(){
+		pruneCars();
 	}
 });
 
@@ -204,7 +207,7 @@ var createImageList = function createImageList(postID, originalImageList) {
 	var pID = postID;
 	var searchCounter = 1;
 
-	returnImages = _.first(returnImages, 4);
+	returnImages = _.first(returnImages, 2);
 
 	if (returnImages.length <= 0) return;
 
@@ -311,8 +314,12 @@ var fetchImage = function fetchImage(postID, imgUrl, done) {
 
 var pruneCars = function pruneCars() {
 
+	console.log("Pruning cars.");
+
 	var expiresDate = new Date();
 	expiresDate.setDate(expiresDate.getDate() - 1);
+
+	console.log("Pruning cars not updated since " + expiresDate);
 	//expiresDate.setSeconds(expiresDate.getSeconds() - 30);
 
 	//var carsToDelete = Cars.find({lastupdated: {$lt : expiresDate}});
@@ -325,7 +332,7 @@ var pruneCars = function pruneCars() {
 		}
 	});
 
-	// console.log("Cars left: " + Cars.find().count());
+	console.log("Cars left: " + Cars.find().count());
 
 	Meteor.setTimeout(pruneImages, 1000);
 };
@@ -566,8 +573,10 @@ Meteor.startup(function() {
 
 	// Prune old cars and images every 4 hours ish to save memory
 	var pruneCarsInterval = Meteor.setInterval(function() {
-		if (new Date().getHours() % 4 === 0) pruneCars();
+		var d = new Date().getHours();
+		if (d % 4 === 0) pruneCars();
 	}, 3600000); //check every hour
+
 
 	setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
 

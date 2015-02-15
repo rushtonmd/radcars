@@ -112,6 +112,9 @@ Template.statsTemplate.events({
 	},
 	'click button.increment-images-queue': function() {
 		Meteor.call('incrementImagesQueue');
+	},
+	'click button.prune-cars': function() {
+		Meteor.call('pruneCars');
 	}
 });
 
