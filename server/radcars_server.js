@@ -1,3 +1,168 @@
+// let's try jobs!
+var carSearchJobs = JobCollection('carSearchJobQueue');
+
+
+
+// TEST TEST TEST
+
+
+var setupCarSearchJobsCL = function() {
+
+	carSearchJobs.remove({
+		'type': 'carSearchCL'
+	});
+	carSearchJobs.remove({
+		'type': 'processImage'
+	});
+
+	var searches = Searches.find({});
+	var frequency = 3600000;
+	var job = {};
+
+	// Loop through all the searches and create jobs
+	searches.forEach(function(search) {
+		job = carSearchJobs.createJob('carSearchCL', {
+			"searchText": search.headingSearchText
+		});
+
+		job.repeat({
+			repeats: Job.forever,
+			wait: frequency
+		});
+
+		job.priority('normal');
+
+		job.save();
+
+		//console.log("job saved");
+
+	});
+
+};
+
+var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
+		concurrency: 1,
+		cargo: 1,
+		pollInterval: 15000, // TODO change back to 15 second polling for new jobs
+		prefetch: 0
+	},
+	function(job, cb) {
+		//console.log("SearchWorker");
+
+		var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=rss&query=";
+
+		//1968&charger|1969&charger
+		// Convert search string in database to craigsliststring
+		var sText = job.data.searchText;
+		//var finalSearchText = replaceAll("|", "%7C", sText);//.replaceAll(" ", "+", sText).replaceAll("(", "%28",sText).replaceAll(")", "%29", sText);
+
+
+		var finalSearchText = sText.split(" ").join("+");
+		finalSearchText = finalSearchText.split("|").join("%7C");
+		finalSearchText = finalSearchText.split("(").join("%28");
+		finalSearchText = finalSearchText.split(")").join("%29");
+
+		// Get the initial search results
+		var websiteDataXML = Scrape.feed(baseSearchUrl + finalSearchText);
+
+		//console.log("Search: " + finalSearchText);
+
+		// items is a list of found cars
+		var searchResults = websiteDataXML.items;
+
+		console.log("CL Search: " + finalSearchText + " : Found: " + searchResults.length);
+
+		var updatedResults = searchResults.map(function(obj) {
+
+			var itemDataURL = Scrape.url(obj.link);
+			var itemDeets = {};
+
+			//console.log(obj.link);
+
+			itemDeets.title = itemDataURL.match(/<title>([^<]*)<\/title>/i);
+			itemDeets.price = itemDataURL.match(/<span class="price">([^<]*)<\/span>/i);
+			itemDeets.body = itemDataURL.substring(itemDataURL.indexOf('<section id="postingbody">') + '<section id="postingbody">'.length);
+			itemDeets.body = itemDeets.body.substring(0, itemDeets.body.indexOf("</section>"));
+
+			itemDeets.imageLink = itemDataURL.substring(itemDataURL.indexOf('<div id="1_image_'));
+			itemDeets.imageLink = itemDeets.imageLink.substring(itemDeets.imageLink.indexOf('<img src="') + '<img src="'.length);
+			itemDeets.imageLink = itemDeets.imageLink.substring(0, itemDeets.imageLink.indexOf('"'));
+
+			itemDeets.city = itemDataURL.substring(itemDataURL.indexOf('<span class="postingtitletext">'));
+			if (itemDeets.city.indexOf('<small> (') < 0) itemDeets.city = "SF Bay Area";
+			else {
+				itemDeets.city = itemDeets.city.substring(itemDeets.city.indexOf('<small> (') + '<small> ('.length);
+				itemDeets.city = itemDeets.city.substring(0, itemDeets.city.indexOf(')'));
+			}
+
+			//itemDeets.imageLink = itemDataURL.match(/<div id="thumbs">([^<]*)<\/div>/i);
+
+			if (!itemDeets.title || !itemDeets.price || !itemDeets.body || !itemDeets.imageLink) return null;
+
+			itemDeets.title = itemDeets.title[1];
+			itemDeets.price = itemDeets.price[1];
+
+			return {
+				id: new Date().getTime(),
+				external_id: obj.link,
+				external_url: obj.link,
+				heading: itemDeets.title,
+				body: itemDeets.body,
+				imageLink: itemDeets.imageLink,
+				price: itemDeets.price,
+				city: itemDeets.city
+			};
+
+		});
+
+		// // Loop through each of the found cars
+		_.each(updatedResults, function(post) {
+
+			if (!post) return;
+
+			//console.log(post);
+
+			//var imageUrl = post;
+			var iList = [post.imageLink];
+			var lastupdated = new Date();
+
+			//console.log(iList);
+			var newCar = Cars.upsert({
+				external_id: post.external_id
+			}, {
+				$set: {
+					external_id: post.external_id,
+					external_url: post.external_url,
+					heading: post.heading,
+					headingSearchable: post.heading.toLowerCase(),
+					id: post.id,
+					cityname: post.city,
+					price: post.price,
+					source: post.source,
+					timestamp: post.timestamp,
+					lastupdated: lastupdated,
+					body: post.body
+				},
+				$setOnInsert: {
+					imageList: [],
+					short_url: new Date().getTime().toString(36)
+				}
+			});
+			//console.log(newCar);
+			createImageList(newCar.insertedId, iList);
+
+		});
+
+		job.done();
+		cb();
+
+		//};
+	});
+
+
+// TEST TEST TEST
+
+
 // var fetchImagesQueue = new PowerQueue({
 // 	maxFailures: 1,
 // 	debug: true,
@@ -5,7 +170,7 @@
 // });
 
 // let's try jobs!
-var carSearchJobs = JobCollection('carSearchJobQueue');
+// var carSearchJobs = JobCollection('carSearchJobQueue');
 
 // Meteor.publish('allSearchJobs', function() {
 // 	return carSearchJobs.find({});
@@ -85,9 +250,8 @@ Meteor.methods({
 	},
 	resetImagesQueue: function() {
 		console.log("Resetting cars and images queues.")
-		setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
+		startAllSearches();
 		carSearchJobs.startJobs();
-		//fetchImagesQueue.reset();
 	},
 	imagesQueueLength: function() {
 		return carSearchJobs.find().count();
@@ -95,10 +259,10 @@ Meteor.methods({
 	numberOfCars: function() {
 		return Cars.find().count();
 	},
-	numberOfImages: function(){
+	numberOfImages: function() {
 		return Images.find().count();
 	},
-	pruneCars: function(){
+	pruneCars: function() {
 		pruneCars();
 	}
 });
@@ -109,7 +273,7 @@ var flushAllData = function flushAllData() {
 	Cars.remove({});
 	Images.remove({});
 
-	setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
+	startAllSearches();
 	//populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM");
 };
 
@@ -154,10 +318,12 @@ var populateCars = function populateCars(tier, source) {
 		Meteor.setTimeout(function() {
 			Meteor.http.get(apiData.url, apiData, function(err, res) {
 				//console.log("Data returned!" + res.data.postings.length);
+				// TODO NEED TO COMMENT
 				//console.log(res.data);
 				var postings = res.data.postings;
+
 				_.each(postings, function(post) {
-					//console.log("POST: " + post.heading)
+					//console.log("POST: " + post);
 					//var newCar = Cars.insert(post);
 					var imageUrl = post.images && post.images[0] && post.images[0].full || post.images[0].thumb;
 					var imageList = post.images;
@@ -202,10 +368,12 @@ var createImageList = function createImageList(postID, originalImageList) {
 	if (!postID || !originalImageList) return;
 
 	var returnImages = _.filter(originalImageList, function(i) {
-		return i.full;
+		return i.full || i;
 	});
 	var pID = postID;
 	var searchCounter = 1;
+
+	console.log("Return: " + returnImages);
 
 	returnImages = _.first(returnImages, 2);
 
@@ -216,6 +384,7 @@ var createImageList = function createImageList(postID, originalImageList) {
 			selectedImage: 0
 		}
 	});
+
 
 	_.each(returnImages, function(image) {
 		//console.log(searchCounter);
@@ -230,7 +399,7 @@ var createImageList = function createImageList(postID, originalImageList) {
 
 		job = carSearchJobs.createJob('processImage', {
 			"postID": pID,
-			"url": image.full
+			"url": image.full || image
 		});
 
 		job.retry({
@@ -402,17 +571,15 @@ var apiDataFactory = function apiDataFactory(heading, tier, source) {
 
 var setupCarSearchJobs = function(tier, source) {
 
-	//console.log(carSearchJobs.find({}).count());
-	//console.log(carSearchJobs.findOne());
+	// TODO 
+	return;
+
 	carSearchJobs.remove({
 		'type': 'carSearch'
 	});
 	carSearchJobs.remove({
 		'type': 'processImage'
 	});
-	//console.log(carSearchJobs.find({}).count());
-
-
 
 	var searches = Searches.find({});
 	var frequency = 3600000;
@@ -437,17 +604,9 @@ var setupCarSearchJobs = function(tier, source) {
 
 	});
 
-	//console.log(carSearchJobs.find({}).count());
-
-	// .retry({
-	// 	retries: 5,
-	// 	wait: 15 * 60 * 1000
-	// }) // 15 minutes between attempts
-	//.repeat({repeats: Job.forever})
-	//.delay(60 * 60 * 1000) // Wait an hour before first try
-	//.save(); // Commit it to the server
-
 };
+
+
 
 var searchWorkers = Job.processJobs('carSearchJobQueue', 'carSearch', {
 		concurrency: 1,
@@ -469,9 +628,9 @@ var searchWorkers = Job.processJobs('carSearchJobQueue', 'carSearch', {
 		var lastupdated = new Date();
 
 		Meteor.http.get(apiData.url, apiData, function(err, res) {
-			//console.log(err);
-			//console.log("Data returned!" + res.data.postings.length);
-			//console.log(res.data);
+			console.log(err);
+			console.log("Data returned!" + res.data.postings.length);
+			console.log(res.data);
 			if (res && res.data) {
 				var postings = res.data.postings;
 				_.each(postings, function(post) {
@@ -539,6 +698,14 @@ var imageWorkers = Job.processJobs('carSearchJobQueue', 'processImage', {
 
 	});
 
+var startAllSearches = function startAllSearches() {
+
+	setupCarSearchJobs(0, "AUTOC|AUTOD|EBAYM");
+
+	setupCarSearchJobsCL();
+};
+
+
 Meteor.startup(function() {
 
 	// Ensure MongoDB Indexes
@@ -578,7 +745,8 @@ Meteor.startup(function() {
 	}, 3600000); //check every hour
 
 
-	setupCarSearchJobs(0, "CRAIG|AUTOC|AUTOD|EBAYM");
+	startAllSearches();
+
 
 	carSearchJobs.startJobs();
 
