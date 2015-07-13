@@ -49,7 +49,7 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 	function(job, cb) {
 		//console.log("SearchWorker");
 
-		var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=rss&query=";
+		var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=rss&query=";
 
 		//1968&charger|1969&charger
 		// Convert search string in database to craigsliststring
