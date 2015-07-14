@@ -653,6 +653,7 @@ Template.search.events({
 
 Meteor.startup(function() {
 
+
 	Meteor.call('serveImagesThroughNginx', function(err, data) {
 		if (err) console.log(err);
 

@@ -8,13 +8,6 @@ var carSearchJobs = JobCollection('carSearchJobQueue');
 
 var setupCarSearchJobsCL = function() {
 
-	carSearchJobs.remove({
-		'type': 'carSearchCL'
-	});
-	carSearchJobs.remove({
-		'type': 'processImage'
-	});
-
 	var searches = Searches.find({});
 	var frequency = 3600000;
 	var job = {};
@@ -95,9 +88,19 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 				itemDeets.city = itemDeets.city.substring(0, itemDeets.city.indexOf(')'));
 			}
 
+			if (itemDataURL.indexOf('"updated: "') >= 0) itemDeets.lastupdated = "";
+			else {
+				itemDeets.lastupdated = itemDataURL.substring(itemDataURL.indexOf('"updated: "'));
+				itemDeets.lastupdated = itemDeets.lastupdated.substring(itemDeets.lastupdated.indexOf('datetime="') + 10);
+				itemDeets.lastupdated = itemDeets.lastupdated.substring(0, itemDeets.lastupdated.indexOf('"'));
+				itemDeets.lastupdated = Date.parse(itemDeets.lastupdated);
+			}
+
+			console.log(itemDeets.lastupdated);
+
 			//itemDeets.imageLink = itemDataURL.match(/<div id="thumbs">([^<]*)<\/div>/i);
 
-			if (!itemDeets.title || !itemDeets.price || !itemDeets.body || !itemDeets.imageLink) return null;
+			if (!itemDeets.title || !itemDeets.price || !itemDeets.body || !itemDeets.imageLink || !itemDeets.lastupdated) return null;
 
 			itemDeets.title = itemDeets.title[1];
 			itemDeets.price = itemDeets.price[1];
@@ -110,7 +113,8 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 				body: itemDeets.body,
 				imageLink: itemDeets.imageLink,
 				price: itemDeets.price,
-				city: itemDeets.city
+				city: itemDeets.city,
+				lastupdated: itemDeets.lastupdated
 			};
 
 		});
@@ -140,7 +144,7 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 					price: post.price,
 					source: post.source,
 					timestamp: post.timestamp,
-					lastupdated: lastupdated,
+					lastupdated: post.lastupdated,
 					body: post.body
 				},
 				$setOnInsert: {
@@ -571,15 +575,6 @@ var apiDataFactory = function apiDataFactory(heading, tier, source) {
 
 var setupCarSearchJobs = function(tier, source) {
 
-	// TODO 
-	return;
-
-	carSearchJobs.remove({
-		'type': 'carSearch'
-	});
-	carSearchJobs.remove({
-		'type': 'processImage'
-	});
 
 	var searches = Searches.find({});
 	var frequency = 3600000;
@@ -700,6 +695,18 @@ var imageWorkers = Job.processJobs('carSearchJobQueue', 'processImage', {
 
 var startAllSearches = function startAllSearches() {
 
+	// Blow away car and image jobs
+
+	carSearchJobs.remove({
+		'type': 'carSearchCL'
+	});
+	carSearchJobs.remove({
+		'type': 'carSearch'
+	});
+	carSearchJobs.remove({
+		'type': 'processImage'
+	});
+
 	setupCarSearchJobs(0, "AUTOC|AUTOD|EBAYM");
 
 	setupCarSearchJobsCL();
@@ -727,6 +734,7 @@ Meteor.startup(function() {
 			//defaultProfile: someDefault: 'default'
 	});
 
+
 	// Update tier 0 every 1 hour
 	// var populateTier0Interval = Meteor.setInterval(function() {
 	// 	populateCars(0, "CRAIG|AUTOC|AUTOD|EBAYM")
@@ -744,6 +752,9 @@ Meteor.startup(function() {
 		if (d % 4 === 0) pruneCars();
 	}, 3600000); //check every hour
 
+	//var job = new Job(carSearchJobs, 'carSearch'); 
+	
+	
 
 	startAllSearches();
 
