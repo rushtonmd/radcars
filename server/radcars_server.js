@@ -96,7 +96,7 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 				itemDeets.lastupdated = Date.parse(itemDeets.lastupdated);
 			}
 
-			console.log(itemDeets.lastupdated);
+			//console.log(itemDeets.lastupdated);
 
 			//itemDeets.imageLink = itemDataURL.match(/<div id="thumbs">([^<]*)<\/div>/i);
 
@@ -130,6 +130,9 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 			var iList = [post.imageLink];
 			var lastupdated = new Date();
 
+			// Try to remove duplicate postings (with the same exact heading)
+			if (Cars.find({heading: post.heading}).count() > 0) return;
+
 			//console.log(iList);
 			var newCar = Cars.upsert({
 				external_id: post.external_id
@@ -143,7 +146,7 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 					cityname: post.city,
 					price: post.price,
 					source: post.source,
-					timestamp: post.timestamp,
+					timestamp: post.lastupdated,
 					lastupdated: post.lastupdated,
 					body: post.body
 				},

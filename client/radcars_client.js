@@ -166,7 +166,7 @@ var setFiltersOnCars = function setFiltersOnCars(filterText) {
 			}
 		},
 		sort: {
-			timestamp: -1,
+			lastupdated: -1,
 			cityname: 1
 		}
 	});
@@ -180,7 +180,8 @@ var setFiltersOnCarCuration = function setFiltersOnCars(filterText) {
 			}
 		},
 		sort: {
-			timestamp: -1
+			lastupdated: -1,
+			cityname: 1
 		}
 	});
 };
