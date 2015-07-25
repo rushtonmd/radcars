@@ -9,7 +9,7 @@ var carSearchJobs = JobCollection('carSearchJobQueue');
 var setupCarSearchJobsCL = function() {
 
 	var searches = Searches.find({});
-	var frequency = 3600000;
+	var frequency = 3600000; //3600000
 	var job = {};
 
 	// Loop through all the searches and create jobs
@@ -40,7 +40,7 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 		prefetch: 0
 	},
 	function(job, cb) {
-		//console.log("SearchWorker");
+		console.log("SearchWorkerCL");
 
 		var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=rss&query=";
 
