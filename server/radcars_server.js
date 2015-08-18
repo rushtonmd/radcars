@@ -9,7 +9,7 @@ var carSearchJobs = JobCollection('carSearchJobQueue');
 var setupCarSearchJobsCL = function() {
 
 	var searches = Searches.find({});
-	var frequency = 3600000; //3600000
+	var frequency = 43200000; //originally at 1 hour but craigslist throttled it, trying twice a day
 	var job = {};
 
 	// Loop through all the searches and create jobs
@@ -36,7 +36,7 @@ var setupCarSearchJobsCL = function() {
 var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 		concurrency: 1,
 		cargo: 1,
-		pollInterval: 15000, // TODO change back to 15 second polling for new jobs
+		pollInterval: 300000, // Try 5 minutes
 		prefetch: 0
 	},
 	function(job, cb) {
