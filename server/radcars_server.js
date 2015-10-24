@@ -44,7 +44,7 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 
         try {
 
-            var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=rss&query=";
+            var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=json&query=";
 
             //1968&charger|1969&charger
             // Convert search string in database to craigsliststring
@@ -58,19 +58,40 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
             finalSearchText = finalSearchText.split("(").join("%28");
             finalSearchText = finalSearchText.split(")").join("%29");
 
-            //console.log("Search: " + finalSearchText);
+            console.log("Search Scrape.feed: " + finalSearchText);
 
             // Get the initial search results
             var websiteDataXML = Scrape.feed(baseSearchUrl + finalSearchText);
-
 
             // items is a list of found cars
             var searchResults = websiteDataXML.items;
 
             console.log("CL Search: " + finalSearchText + " : Found: " + searchResults.length);
 
+            //var cheerio = require('cheerio');   
+            console.log("Search http.get: " + finalSearchText);
+            var result = Meteor.http.get(baseSearchUrl + finalSearchText);
+            var $ = cheerio.load(result.content, {
+                xmlMode: true
+            });
+            var items = $('div.content').find('p.row');
+
+            console.log(items.length);
+
+            items.each(function(i, elem) {
+                //console.log($(this).find('a').attr('href'));
+            });
+
+
+            //console.log(result.content);
+
+            
+
+            
+
             var updatedResults = searchResults.map(function(obj) {
 
+                
                 var itemDataURL = Scrape.url(obj.link);
                 var itemDeets = {};
 
@@ -123,6 +144,7 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 
             });
         } catch (err) {
+            console.log(err);
             return null;
         }
 
