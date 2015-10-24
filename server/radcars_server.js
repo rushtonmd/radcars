@@ -44,8 +44,8 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
 
         try {
 
-            var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=json&query=";
-
+            var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=rss&query=";
+            //baseSearchUrl = "http://craigslist.org";
             //1968&charger|1969&charger
             // Convert search string in database to craigsliststring
             if (!(job || {}).data) return null;
@@ -63,24 +63,26 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
             // Get the initial search results
             var websiteDataXML = Scrape.feed(baseSearchUrl + finalSearchText);
 
+            console.log(websiteDataXML);
+
             // items is a list of found cars
             var searchResults = websiteDataXML.items;
 
             console.log("CL Search: " + finalSearchText + " : Found: " + searchResults.length);
 
             //var cheerio = require('cheerio');   
-            console.log("Search http.get: " + finalSearchText);
-            var result = Meteor.http.get(baseSearchUrl + finalSearchText);
-            var $ = cheerio.load(result.content, {
-                xmlMode: true
-            });
-            var items = $('div.content').find('p.row');
+            // console.log("Search http.get: " + finalSearchText);
+            // var result = Meteor.http.get(baseSearchUrl + finalSearchText);
+            // var $ = cheerio.load(result.content, {
+            //     xmlMode: true
+            // });
+            // var items = $('div.content').find('p.row');
 
-            console.log(items.length);
+            // console.log(items.length);
 
-            items.each(function(i, elem) {
-                //console.log($(this).find('a').attr('href'));
-            });
+            // items.each(function(i, elem) {
+            //     console.log($(this).find('a').attr('href'));
+            // });
 
 
             //console.log(result.content);
