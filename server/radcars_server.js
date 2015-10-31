@@ -9,7 +9,7 @@ var carSearchJobs = JobCollection('carSearchJobQueue');
 var setupCarSearchJobsCL = function() {
 
     var searches = Searches.find({});
-    var frequency = 43200000; //originally at 1 hour but craigslist throttled it, trying twice a day
+    var frequency = 3600000; //originally at 1 hour but craigslist throttled it, trying twice a day
     var job = {};
 
     // Loop through all the searches and create jobs
@@ -43,8 +43,8 @@ var searchWorkersCL = Job.processJobs('carSearchJobQueue', 'carSearchCL', {
         console.log("SearchWorkerCL");
 
         try {
-
-            var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=373&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=12&nearbyArea=97&format=rss&query=";
+            
+            var baseSearchUrl = "http://sfbay.craigslist.org/search/cta?srchType=T&hasPic=1&sort=date&searchNearby=1&nearbyArea=63&nearbyArea=187&nearbyArea=43&nearbyArea=373&nearbyArea=709&nearbyArea=189&nearbyArea=454&nearbyArea=285&nearbyArea=96&nearbyArea=102&nearbyArea=188&nearbyArea=92&nearbyArea=12&nearbyArea=191&nearbyArea=62&nearbyArea=710&nearbyArea=708&nearbyArea=97&nearbyArea=707&nearbyArea=208&nearbyArea=346&nearbyArea=456&format=rss&query=";
             //baseSearchUrl = "http://craigslist.org";
             //1968&charger|1969&charger
             // Convert search string in database to craigsliststring
