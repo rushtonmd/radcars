@@ -9,7 +9,7 @@ var carSearchJobs = JobCollection('carSearchJobQueue');
 var setupCarSearchJobsCL = function() {
 
     var searches = Searches.find({});
-    var frequency = 3600000; //originally at 1 hour but craigslist throttled it, trying twice a day
+    var frequency = 14400000; //originally at 1 hour but craigslist throttled it, trying twice a day
     var job = {};
 
     // Loop through all the searches and create jobs
