@@ -2,7 +2,7 @@
 
 Here's an app I built to help a buddy of mine find rad cars in the bay area without having to go through the pain and suffering of searching craigslist, ebay, and autotrader individually. #firstworldproblems
 
-### Live site
+### Live site (no longer available)
 
 http://tirekick.us
 
